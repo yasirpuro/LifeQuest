@@ -1,0 +1,256 @@
+.page {
+  min-height: 100dvh;
+  max-width: 480px;
+  margin: 0 auto;
+  width: 100%;
+  position: relative;
+}
+
+.headerBg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 180px;
+  background: linear-gradient(180deg, rgba(124, 92, 252, 0.15) 0%, transparent 100%);
+  pointer-events: none;
+}
+
+.profileSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.avatarWrap {
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #7c5cfc, #00d4ff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  font-size: 36px;
+  font-weight: 800;
+  border: 3px solid rgba(124, 92, 252, 0.3);
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.premiumBadge {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ffa502, #ff6b81);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  border: 2px solid var(--bg-primary);
+}
+
+.name {
+  font-size: 24px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.bio {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.45);
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.levelRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 300px;
+}
+
+.levelTag {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 10px;
+  background: linear-gradient(135deg, #7c5cfc, #00d4ff);
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.xpBar {
+  flex: 1;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.xpFill {
+  height: 100%;
+  background: linear-gradient(90deg, #7c5cfc, #00d4ff);
+  border-radius: 6px;
+  transition: width 0.5s ease;
+}
+
+.xpLabel {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.35);
+  white-space: nowrap;
+}
+
+.statsRow {
+  display: flex;
+  align-items: center;
+  margin: 20px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+}
+
+.stat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.divider {
+  width: 1px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.iconBlue { color: #00d4ff; }
+.iconOrange { color: #ffa502; }
+.iconGreen { color: #00ff88; }
+.iconPurple { color: #7c5cfc; }
+
+.statVal {
+  font-size: 20px;
+  font-weight: 800;
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.statLbl {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.section {
+  padding: 0 20px;
+  margin-bottom: 20px;
+}
+
+.sectionTitle {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+
+.badgeGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  position: relative;
+}
+
+.badgeLocked {
+  opacity: 0.4;
+  cursor: pointer;
+}
+
+.badgeIcon {
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.badgeName {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.55);
+  text-align: center;
+  font-weight: 500;
+}
+
+.premTag {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  font-size: 7px;
+  padding: 1px 4px;
+  background: linear-gradient(135deg, #ffa502, #ff6b81);
+  border-radius: 4px;
+  color: white;
+  font-weight: 600;
+}
+
+.weekGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.weekCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 4px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+}
+
+.weekDay {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.35);
+  font-weight: 500;
+}
+
+.weekVal {
+  font-size: 16px;
+  font-weight: 800;
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.weekLbl {
+  font-size: 8px;
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.bottomPad {
+  height: 80px;
+}

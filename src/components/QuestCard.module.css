@@ -12,8 +12,8 @@
 }
 
 .card:hover {
-  border-color: rgba(124, 92, 252, 0.3);
-  box-shadow: 0 0 30px rgba(124, 92, 252, 0.1);
+  border-color: rgba(108, 99, 255, 0.3);
+  box-shadow: 0 0 30px rgba(108, 99, 255, 0.1);
 }
 
 .card.completed {
@@ -91,8 +91,8 @@
   align-items: center;
   gap: 4px;
   padding: 4px 10px;
-  background: rgba(124, 92, 252, 0.1);
-  border: 1px solid rgba(124, 92, 252, 0.15);
+  background: rgba(108, 99, 255, 0.1);
+  border: 1px solid rgba(108, 99, 255, 0.15);
   border-radius: 20px;
   font-size: 12px;
   font-weight: 500;
@@ -117,7 +117,7 @@
 .completeBtn {
   flex: 1;
   padding: 12px;
-  background: linear-gradient(135deg, #7c5cfc, #00d4ff);
+  background: linear-gradient(135deg, #6C63FF, #00d4ff);
   color: white;
   font-weight: 600;
   font-size: 14px;
@@ -126,7 +126,7 @@
 }
 
 .completeBtn:hover {
-  box-shadow: 0 0 20px rgba(124, 92, 252, 0.4);
+  box-shadow: 0 0 20px rgba(108, 99, 255, 0.4);
   transform: translateY(-1px);
 }
 
@@ -159,8 +159,8 @@
 }
 
 .shareBtn:hover {
-  color: #7c5cfc;
-  border-color: rgba(124, 92, 252, 0.3);
+  color: #6C63FF;
+  border-color: rgba(108, 99, 255, 0.3);
 }
 
 @keyframes fadeInUp {

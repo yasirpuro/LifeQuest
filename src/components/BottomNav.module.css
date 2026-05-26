@@ -25,7 +25,7 @@
 }
 
 .tab.active {
-  color: #7c5cfc;
+  color: #6C63FF;
 }
 
 .label {
@@ -39,5 +39,5 @@
   width: 24px;
   height: 3px;
   border-radius: 3px;
-  background: linear-gradient(135deg, #7c5cfc, #00d4ff);
+  background: linear-gradient(135deg, #6C63FF, #00d4ff);
 }

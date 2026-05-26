@@ -8,14 +8,14 @@
   --text-secondary: rgba(255, 255, 255, 0.6);
   --text-muted: rgba(255, 255, 255, 0.35);
   --neon-blue: #00d4ff;
-  --neon-purple: #7c5cfc;
+  --neon-purple: #6C63FF;
   --neon-green: #00ff88;
-  --neon-pink: #ff4d8d;
+  --neon-pink: #FF6B9D;
   --neon-orange: #ff8a00;
   --neon-red: #ff4757;
-  --gradient-primary: linear-gradient(135deg, #7c5cfc 0%, #00d4ff 100%);
+  --gradient-primary: linear-gradient(135deg, #6C63FF 0%, #00d4ff 100%);
   --gradient-premium: linear-gradient(135deg, #ffa502 0%, #ff6b81 50%, #ff4757 100%);
-  --shadow-neon: 0 0 20px rgba(124, 92, 252, 0.3);
+  --shadow-neon: 0 0 20px rgba(108, 99, 255, 0.3);
   --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.4);
   --radius-sm: 8px;
   --radius-md: 12px;
@@ -121,7 +121,7 @@ img {
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 0 30px rgba(124, 92, 252, 0.5);
+  box-shadow: 0 0 30px rgba(108, 99, 255, 0.5);
 }
 
 .btn-primary:active {
@@ -155,8 +155,8 @@ img {
 }
 
 @keyframes glow {
-  0%, 100% { box-shadow: 0 0 5px rgba(124, 92, 252, 0.3); }
-  50% { box-shadow: 0 0 20px rgba(124, 92, 252, 0.6); }
+  0%, 100% { box-shadow: 0 0 5px rgba(108, 99, 255, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(108, 99, 255, 0.6); }
 }
 
 @keyframes slideInRight {

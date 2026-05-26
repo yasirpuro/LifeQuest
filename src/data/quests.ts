@@ -4,7 +4,7 @@ export const LOCATIONS: LocationOption[] = [
   { id: 'gym', emoji: '\u{1F3CB}', label: 'Spor Salonu', sublabel: 'Kas yap, sosyalles', color: '#ff4757' },
   { id: 'cafe', emoji: '\u2615', label: 'Kafe', sublabel: 'Kahve + sohbet', color: '#ffa502' },
   { id: 'park', emoji: '\u{1F333}', label: 'Park / Disarisi', sublabel: 'Doga + hareket', color: '#2ed573' },
-  { id: 'home', emoji: '\u{1F3E0}', label: 'Ev', sublabel: 'Konfor bolgesinden cik', color: '#7c5cfc' },
+  { id: 'home', emoji: '\u{1F3E0}', label: 'Ev', sublabel: 'Konfor bolgesinden cik', color: '#6C63FF' },
   { id: 'mall', emoji: '\u{1F6D2}', label: 'AVM', sublabel: 'Alisveris + macera', color: '#ff6b81' },
 ];
 

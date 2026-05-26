@@ -23,7 +23,7 @@
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #7c5cfc, #00d4ff);
+  background: linear-gradient(135deg, #6C63FF, #00d4ff);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -115,7 +115,7 @@
 .levelBadge {
   font-weight: 700;
   font-size: 15px;
-  background: linear-gradient(135deg, #7c5cfc, #00d4ff);
+  background: linear-gradient(135deg, #6C63FF, #00d4ff);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -135,7 +135,7 @@
 
 .xpFill {
   height: 100%;
-  background: linear-gradient(90deg, #7c5cfc, #00d4ff);
+  background: linear-gradient(90deg, #6C63FF, #00d4ff);
   border-radius: 6px;
   transition: width 0.5s ease;
 }
@@ -161,7 +161,7 @@
 .statIconBlue { color: #00d4ff; }
 .statIconOrange { color: #ffa502; }
 .statIconGreen { color: #00ff88; }
-.statIconPurple { color: #7c5cfc; }
+.statIconPurple { color: #6C63FF; }
 
 .statValue {
   font-size: 18px;
@@ -215,7 +215,7 @@
 .chartBar {
   width: 70%;
   min-height: 4px;
-  background: linear-gradient(180deg, #7c5cfc, #00d4ff);
+  background: linear-gradient(180deg, #6C63FF, #00d4ff);
   border-radius: 4px 4px 2px 2px;
   transition: height 0.5s ease;
 }

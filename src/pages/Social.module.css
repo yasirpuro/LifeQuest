@@ -1,0 +1,612 @@
+.page {
+  min-height: 100dvh;
+  padding: 20px;
+  padding-bottom: 0;
+  max-width: 480px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ── MY LEAGUE CARD ─────────────────────────────────────────────────────────── */
+.myLeagueCard {
+  background: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px;
+  padding: 18px 20px 14px;
+  margin-bottom: 16px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  gap: 4px;
+  position: relative;
+  overflow: hidden;
+}
+
+.myLeagueCard::before {
+  content: '';
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 120px;
+  height: 120px;
+  background: radial-gradient(circle, currentColor 0%, transparent 70%);
+  opacity: 0.04;
+  border-radius: 50%;
+}
+
+.myLeagueLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.myLeagueTier {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  opacity: 0.9;
+}
+
+.myLeagueName {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.myLeagueTitle {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.myLeagueRight {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+}
+
+.myLevelBadge {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  border: 1.5px solid transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+
+.myLevelNum {
+  font-size: 24px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.myLevelLabel {
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  opacity: 0.5;
+  letter-spacing: 0.5px;
+}
+
+.myLeagueBottom {
+  grid-column: 1 / -1;
+  margin-top: 8px;
+}
+
+.myXpRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.myXpLabel,
+.myStreakLabel {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.myXpBar {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.myXpFill {
+  height: 100%;
+  background: linear-gradient(90deg, #6C63FF, #00d4ff);
+  border-radius: 99px;
+  transition: width 0.6s ease;
+}
+
+/* ── TABS ───────────────────────────────────────────────────────────────────── */
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.tab:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.tabActive {
+  background: rgba(108, 99, 255, 0.12);
+  border-color: rgba(108, 99, 255, 0.3);
+  color: #9d99ff;
+}
+
+/* ── SEARCH ─────────────────────────────────────────────────────────────────── */
+.searchWrap {
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.searchInput {
+  width: 100%;
+  padding: 11px 16px 11px 38px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  color: white;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+.searchInput:focus {
+  border-color: rgba(108, 99, 255, 0.4);
+  outline: none;
+}
+
+.lockIcon {
+  position: absolute;
+  right: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #ffa502;
+}
+
+/* ── SECTION ─────────────────────────────────────────────────────────────────── */
+.section {
+  margin-bottom: 20px;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.addBtn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background: rgba(108, 99, 255, 0.1);
+  border: 1px solid rgba(108, 99, 255, 0.25);
+  border-radius: 8px;
+  color: #9d99ff;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.addBtn:hover {
+  background: rgba(108, 99, 255, 0.18);
+}
+
+/* ── LEAGUE BADGES ───────────────────────────────────────────────────────────── */
+.leagueBadges {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+}
+
+.leagueBadges::-webkit-scrollbar { display: none; }
+
+.leagueBadge {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  min-width: 52px;
+  font-size: 16px;
+  transition: all 0.2s;
+}
+
+.leagueBadgeActive {
+  transform: scale(1.05);
+}
+
+.leagueBadgeName {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* ── LEADERBOARD LIST ─────────────────────────────────────────────────────────── */
+.leaderboardList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.playerCard {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 14px;
+  transition: all 0.2s;
+}
+
+.playerCard:hover {
+  background: rgba(255, 255, 255, 0.055);
+}
+
+.meCard {
+  background: rgba(108, 99, 255, 0.07);
+  border-color: rgba(108, 99, 255, 0.2);
+}
+
+.goldCard {
+  border-color: rgba(255, 215, 0, 0.2);
+  background: rgba(255, 215, 0, 0.04);
+}
+
+.silverCard {
+  border-color: rgba(192, 192, 192, 0.2);
+  background: rgba(192, 192, 192, 0.03);
+}
+
+.bronzeCard {
+  border-color: rgba(205, 127, 50, 0.2);
+  background: rgba(205, 127, 50, 0.03);
+}
+
+.rankWrap {
+  min-width: 28px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.rank {
+  font-size: 13px;
+}
+
+.playerAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 15px;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.playerAvatar img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.statusDot {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 2px solid #0d0d1a;
+}
+
+.playerDetails {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.nameRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.playerName {
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.meTag {
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 12px;
+}
+
+.playerLeague {
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.playerTitle {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.35);
+  font-weight: 500;
+}
+
+.playerStatus {
+  font-size: 10px;
+  color: #00d4ff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.progressRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 3px;
+}
+
+.xpBar {
+  flex: 1;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.xpFill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.5s ease;
+}
+
+.xpText {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.3);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ── SUPPORT BUTTON ─────────────────────────────────────────────────────────── */
+.supportBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 44px;
+  height: 44px;
+  background: rgba(255, 71, 87, 0.1);
+  border: 1px solid rgba(255, 71, 87, 0.2);
+  border-radius: 12px;
+  color: #ff4757;
+  font-size: 10px;
+  font-weight: 600;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.supportBtn:hover:not(:disabled) {
+  background: rgba(255, 71, 87, 0.18);
+  transform: scale(1.05);
+}
+
+.supportBtn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.supportSent {
+  background: rgba(255, 71, 87, 0.15);
+  border-color: rgba(255, 71, 87, 0.35);
+}
+
+/* ── FRIEND LIST ─────────────────────────────────────────────────────────────── */
+.friendList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.friendCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  transition: all 0.2s;
+}
+
+.friendCard:hover {
+  background: rgba(255, 255, 255, 0.055);
+}
+
+.friendAvatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 18px;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.friendAvatar img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.friendInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.friendNameRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.friendName {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.friendLeague {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.friendTitle {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.35);
+  font-weight: 500;
+}
+
+.friendStatus {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.friendQuest {
+  font-size: 11px;
+  color: #00d4ff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.friendXpRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+/* ── EMPTY STATE ─────────────────────────────────────────────────────────────── */
+.emptyState {
+  text-align: center;
+  padding: 40px 20px;
+  color: rgba(255, 255, 255, 0.3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  font-size: 32px;
+}
+
+.emptyState p {
+  font-size: 14px;
+}
+
+/* ── PREMIUM CTA ─────────────────────────────────────────────────────────────── */
+.premiumCta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.08), rgba(255, 165, 0, 0.04));
+  border: 1px solid rgba(255, 215, 0, 0.15);
+  border-radius: 14px;
+  cursor: pointer;
+  margin-top: 12px;
+  transition: all 0.2s;
+}
+
+.premiumCta:hover {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.12), rgba(255, 165, 0, 0.06));
+}
+
+.premiumCtaTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.premiumCtaDesc {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.4);
+  margin-top: 2px;
+}
+
+.bottomPad {
+  height: 80px;
+}

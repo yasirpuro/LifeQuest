@@ -1,0 +1,29 @@
+{
+  "name": "LifeQuest — Gerçek Hayat RPG",
+  "short_name": "LifeQuest",
+  "description": "Gerçek dünyada görevler yap, XP kazan, level atla. Viral paylaşım için optimize edilmiş gamified mobil web uygulaması.",
+  "start_url": "https://lifequest.app/index.html",
+  "scope": "https://lifequest.app/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0b0f19",
+  "theme_color": "#0b0f19",
+  "lang": "tr",
+  "dir": "ltr",
+  "categories": ["lifestyle", "entertainment", "health"],
+  "icons": [
+    {
+      "src": "https://lifequest.app/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://lifequest.app/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "prefer_related_applications": false
+}

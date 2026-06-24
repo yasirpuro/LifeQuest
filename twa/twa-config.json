@@ -1,0 +1,27 @@
+{
+  "packageId": "app.lifequest.twa",
+  "host": "lifequest.app",
+  "name": "LifeQuest",
+  "launcherName": "LifeQuest",
+  "display": "standalone",
+  "themeColor": "#0B0F19",
+  "navigationColor": "#0B0F19",
+  "backgroundColor": "#0B0F19",
+  "startUrl": "/index.html",
+  "iconUrl": "https://lifequest.app/icons/icon-512.png",
+  "maskableIconUrl": "https://lifequest.app/icons/icon-512.png",
+  "monochromeIconUrl": "https://lifequest.app/icons/icon-512.png",
+  "splashScreenFadeOutDuration": 300,
+  "enableNotifications": true,
+  "shortcuts": [],
+  "webManifestUrl": "https://lifequest.app/manifest.json",
+  "fallbackType": "webview",
+  "features": {
+    "locationDelegation": {
+      "enabled": true
+    }
+  },
+  "alphaDependencies": {
+    "enabled": false
+  }
+}

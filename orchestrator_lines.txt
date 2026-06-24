@@ -1,0 +1,170 @@
+0061:       widgetCache: getWidgetCache(),
+0062:       timestamp: now,
+0063:     };
+0064: 
+0065:     return result;
+0066:   } catch (error) {
+0067:     logCrash(error as any);
+0068:     result.warnings.push(`Orchestration error: ${error}`);
+0069:     return result;
+0070:   }
+0071: }
+0072: 
+0073: interface NativeSyncResult {
+0074:   success: boolean;
+0075:   message: string;
+0076: }
+0077: 
+0078: async function syncToNative(
+0079:   data: { skillMap: Record<string, SkillProgress>; user: any; lastQuestCompletedAt: string }
+0080: ): Promise<NativeSyncResult> {
+0081:   try {
+0082:     // Try dynamic import for web compatibility
+0083:     const { Preferences } = await import('@capacitor/preferences').catch(() => ({ Preferences: null }));
+0084:     const { Filesystem, Directory } = await import('@capacitor/filesystem').catch(() => ({
+0085:       Filesystem: null,
+0086:       Directory: null,
+0087:     }));
+0088: 
+0089:     const payload = {
+0090:       skills: data.skillMap,
+0091:       lastQuestCompletedAt: data.lastQuestCompletedAt,
+0092:       timestamp: new Date().toISOString(),
+0093:     };
+0094: 
+0095:     if (!Preferences && !Filesystem) {
+0096:       return { success: true, message: 'No native sync targets available in this environment.' };
+0097:     }
+0098: 
+0099:     // Write to Preferences (primary)
+0100:     if (Preferences) {
+0101:       await Preferences.set({
+0102:         key: 'lifequest_skills_v1',
+0103:         value: JSON.stringify(payload),
+0104:       });
+0105:     }
+0106: 
+0107:     // Write to Filesystem (fallback)
+0108:     if (Filesystem && Directory) {
+0109:       await Filesystem.writeFile({
+0110:         path: 'lifequest_skills_v1.json',
+0111:         data: JSON.stringify(payload),
+0112:         directory: Directory.Data,
+0113:       });
+0114:     }
+0115: 
+0116:     return { success: true, message: 'Native sync complete.' };
+0117:   } catch (e) {
+0118:     const message = e instanceof Error ? e.message : String(e);
+0119:     console.warn('Native sync skipped (web environment)', e);
+0120:     return { success: false, message };
+0121:   }
+0122: }
+0123: 
+0124: async function verifySyncOnly(options: {
+0125:   state: AppState;
+0126:   skillMap: Record<string, SkillProgress>;
+0127:   lastQuestCompletedAt: string;
+0128:   cache: Record<string, any>;
+0129:   expectedWidgetData: Record<string, any>;
+0130: }): Promise<{ ok: boolean; message: string }> {
+0131:   const widgetCheck = verifyWidgetCache(options.cache, options.expectedWidgetData);
+0132:   const nativeCheck = await verifyNativeState(options.skillMap, options.lastQuestCompletedAt);
+0133:   const messages: string[] = [];
+0134:   let ok = true;
+0135: 
+0136:   if (!widgetCheck.ok) {
+0137:     messages.push(widgetCheck.message);
+0138:     ok = false;
+0139:   }
+0140: 
+0141:   if (!nativeCheck.ok) {
+0142:     messages.push(nativeCheck.message);
+0143:     ok = false;
+0144:   }
+0145: 
+0146:   return {
+0147:     ok,
+0148:     message: messages.join(' | '),
+0149:   };
+0150: }
+0151: 
+0152: function verifyWidgetCache(cache: Record<string, any>, expected: Record<string, any>): { ok: boolean; message: string } {
+0153:   const now = expected.lastUpdate;
+0154:   const problems: string[] = [];
+0155: 
+0156:   if (cache.streak !== expected.streak) {
+0157:     problems.push(`streak mismatch (${cache.streak} != ${expected.streak})`);
+0158:   }
+0159: 
+0160:   if (cache.streakRisk !== expected.streakRisk) {
+0161:     problems.push(`streakRisk mismatch (${cache.streakRisk} != ${expected.streakRisk})`);
+0162:   }
+0163: 
+0164:   if (cache.dailyProgress?.completed !== expected.dailyProgress?.completed || cache.dailyProgress?.total !== expected.dailyProgress?.total) {
+0165:     problems.push('dailyProgress mismatch');
+0166:   }
+0167: 
+0168:   if (cache.lastUpdate !== now) {
+0169:     problems.push(`lastUpdate mismatch (${cache.lastUpdate} != ${now})`);
+0170:   }
+0171: 
+0172:   if (problems.length === 0) {
+0173:     return { ok: true, message: 'Widget cache verified.' };
+0174:   }
+0175: 
+0176:   return {
+0177:     ok: false,
+0178:     message: `Widget cache verification failed: ${problems.join('; ')}`,
+0179:   };
+0180: }
+0181: 
+0182: async function verifyNativeState(skillMap: Record<string, SkillProgress>, lastQuestCompletedAt: string): Promise<{ ok: boolean; message: string }> {
+0183:   try {
+0184:     const { Preferences } = await import('@capacitor/preferences').catch(() => ({ Preferences: null }));
+0185:     const { Filesystem, Directory } = await import('@capacitor/filesystem').catch(() => ({ Filesystem: null, Directory: null }));
+0186: 
+0187:     if (!Preferences && !Filesystem) {
+0188:       return { ok: true, message: 'Native state unavailable; skipping verification.' };
+0189:     }
+0190: 
+0191:     if (Preferences) {
+0192:       const result = await Preferences.get({ key: 'lifequest_skills_v1' });
+0193:       const savedValue = result?.value;
+0194:       if (savedValue) {
+0195:         const payload = JSON.parse(savedValue);
+0196:         const keyMatch = compareSkillKeySet(payload.skills, skillMap);
+0197:         const timeMatch = payload.lastQuestCompletedAt === lastQuestCompletedAt;
+0198:         if (keyMatch && timeMatch) {
+0199:           return { ok: true, message: 'Preferences payload verified.' };
+0200:         }
+0201:         return {
+0202:           ok: false,
+0203:           message: `Preferences payload mismatch: keyMatch=${keyMatch}, timeMatch=${timeMatch}`,
+0204:         };
+0205:       }
+0206:       return { ok: false, message: 'Preferences payload missing.' };
+0207:     }
+0208: 
+0209:     if (Filesystem && Directory) {
+0210:       const data = await Filesystem.readFile({
+0211:         path: 'lifequest_skills_v1.json',
+0212:         directory: Directory.Data,
+0213:       });
+0214:       const payload = JSON.parse(data.data || '{}');
+0215:       const keyMatch = compareSkillKeySet(payload.skills, skillMap);
+0216:       const timeMatch = payload.lastQuestCompletedAt === lastQuestCompletedAt;
+0217:       if (keyMatch && timeMatch) {
+0218:         return { ok: true, message: 'Filesystem payload verified.' };
+0219:       }
+0220:       return {
+0221:         ok: false,
+0222:         message: `Filesystem payload mismatch: keyMatch=${keyMatch}, timeMatch=${timeMatch}`,
+0223:       };
+0224:     }
+0225: 
+0226:     return { ok: true, message: 'No native data target available after imports.' };
+0227:   } catch (e) {
+0228:     return { ok: false, message: e instanceof Error ? e.message : String(e) };
+0229:   }
+0230: }

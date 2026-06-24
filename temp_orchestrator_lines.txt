@@ -1,0 +1,238 @@
+001: import type { AppState } from '../context/appContextValue';\nimport type { Quest, SkillProgress } from '../types';\nimport { calculateXpForLevel, applyXpCap } from './gameEconomy';\nimport { applyDecayToAllSkills } from '../hooks/useSkillDecay';\nimport { trackEvent, getMasteryDistribution } from './analyticsEngine';\nimport { updateWidgetCache, getWidgetCache } from './widgetCommandBus';\nimport { buildNotificationContent, canSendNotification, trackNotificationEngaged } from './smartNotificationScheduler';\nimport { getLossAversionMessage, getComebackRewardBonus } from './retentionEngine';\nimport { logCrash, recordSync } from './productionSafety';\n\ninterface QuestCompletionContext {\n  quest: Quest;\n  difficulty: 1 | 2 | 3 | 4 | 5;\n  isDue: boolean;\n  isChallenge: boolean;\n  streak: number;\n}\n\ninterface QuestCompletionResult {\n  xpEarned: number;\n  masteryGain: number;\n  leveledUp: boolean;\n  newLevel?: number;\n  notificationSent: boolean;\n  notifications: Array<{ title: string; body: string }>;\n  warnings: string[];\n  stateSnapshot: Record<string, any>;\n}\n\n/**\n * CRITICAL: CompleteQuest Orchestrator\n * Deterministic event flow for quest completion\n * Order: XP calc → decay → recovery → notification → widget → native sync → analytics\n */\nexport async function orchestrateQuestCompletion(\n  state: AppState,\n  context: QuestCompletionContext,\n  skillEngine: any\n): Promise<QuestCompletionResult> {\n  const result: QuestCompletionResult = {\n    xpEarned: 0,\n    masteryGain: 0,\n    leveledUp: false,\n    notificationSent: false,\n    notifications: [],\n    warnings: [],\n    stateSnapshot: {},\n  };\n\n  const now = new Date().toISOString();\n\n  try {\n    // ============================================================\n    // PHASE 1: XP CALCULATION (deterministic)\n    // ============================================================\n    const baseXp = context.quest.difficulty * 10; // 10-50 base\n    const difficultyMultiplier = [0.8, 1, 1.2, 1.5, 2][context.difficulty - 1] || 1;\n    const streakBonus = Math.log2(1 + context.streak) || 1;\n    const dueBonus = context.isDue ? 1.5 : 1;\n    const challengeBonus = context.isChallenge ? 1.3 : 1;\n\n    let earnedXp = baseXp * difficultyMultiplier * streakBonus * dueBonus * challengeBonus;\n\n    // PHASE 2: Check daily XP cap\n    const dailyXpEarned = state.user.xp % 1000; // rough estimate\n    earnedXp = applyXpCap(earnedXp, dailyXpEarned, 1000);\n\n    result.xpEarned = Math.floor(earnedXp);\n\n    // ============================================================\n    // PHASE 3: SKILL ENGINE UPDATE\n    // ============================================================\n    if (context.quest.skillId && skillEngine) {\n      const skill = skillEngine.progressMap[context.quest.skillId];\n      if (skill) {\n        const oldMastery = skill.mastery;\n        skillEngine.addXp(context.quest.skillId, result.xpEarned, {\n          difficulty: context.difficulty,\n          streak: context.streak,\n          isDue: context.isDue,\n          isChallenge: context.isChallenge,\n);\n\n        result.masteryGain = (skillEngine.progressMap[context.quest.skillId]?.mastery || 0) - oldMastery;\n      }\n    }\n\n    // ============================================================\n    // PHASE 4: DECAY SYSTEM CHECK (housekeeping)\n    // ============================================================\n    let skillMap = skillEngine?.progressMap || {};\n    const { updated: decayedSkills, warnings: decayWarnings } = applyDecayToAllSkills(skillMap, now);\n    skillMap = decayedSkills;\n    if (decayWarnings.length > 0) result.warnings.push(...decayWarnings);\n\n    // ============================================================\n    // PHASE 5: LEVEL UP CHECK\n    // ============================================================\n    const prevLevel = state.user.level;\n    const totalXp = state.user.xp + result.xpEarned;\n    let newLevel = prevLevel;\n    while (totalXp >= calculateXpForLevel(newLevel)) {\n      newLevel++;\n    }\n\n    if (newLevel > prevLevel) {\n      result.leveledUp = true;\n      result.newLevel = newLevel;\n      result.notifications.push({\n        title: `🎉 Level ${newLevel}!`,\n        body: `Congratulations! New features unlocked.`,\n      });\n    }\n\n    // ============================================================\n    // PHASE 6: STREAK & RECOVERY UPDATE\n    // ============================================================\n    const prevLastQuestDate = state.user.lastQuestCompletedAt;\n    const daysSinceLastQuest = prevLastQuestDate\n      ? Math.floor((Date.now() - new Date(prevLastQuestDate).getTime()) / (1000 * 60 * 60 * 24))\n      : 999;\n\n    let newStreak = state.user.streak;\n    let streakMessage = '';\n\n    if (daysSinceLastQuest === 0) {\n      // Same day quest\n      newStreak = state.user.streak;\n    } else if (daysSinceLastQuest === 1) {\n      // Normal continuation\n      newStreak = state.user.streak + 1;\n      streakMessage = `🔥 Streak: ${newStreak}!`;\n    } else {\n      // Missed days - check if frozen or comeback\n      if (state.user.recoveryState.streakFrozen) {\n        newStreak = state.user.streak;\n        streakMessage = '🛡️ Streak protected by freeze token';\n        state.user.recoveryState.streakFrozen = false; // consume freeze\n      } else {\n        // Comeback - reset but with bonus\n        const { xpBonus, recoveryMsg } = getComebackRewardBonus(daysSinceLastQuest, state.user.streak);\n        newStreak = 1; // reset to 1\n        earnedXp = Math.floor(earnedXp * (1 + xpBonus / 100));\n        streakMessage = recoveryMsg;\n        result.notifications.push({ title: '🔄 Comeback Mode', body: recoveryMsg });\n      }\n    }\n\n    // ============================================================\n    // PHASE 7: NOTIFICATION ELIGIBILITY\n    // ============================================================\n    let notificationSent = false;\n    if (context.quest.skillId) {\n      const skill = skillMap[context.quest.skillId];\n      if (skill && canSendNotification(context.quest.skillId, skill, now)) {\n        const content = buildNotificationContent(skill, context.quest.skillId, 'normal');\n        result.notifications.push(content);\n        notificationSent = true;\n        trackNotificationEngaged(context.quest.skillId, now);\n      }\n    }\n\n    result.notificationSent = notificationSent;\n\n    // ============================================================\n    // PHASE 8: WIDGET CACHE UPDATE\n    // ============================================================\n    const focusSkill = skillEngine?.getFocusSkill();\n    updateWidgetCache({\n      focusSkillId: focusSkill?.skillId || null,\n      focusMastery: focusSkill?.mastery || 0,\n      streak: newStreak,\n      streakRisk: daysSinceLastQuest > 1 ? 'critical' : daysSinceLastQuest === 1 ? 'warning' : 'safe',\n      dailyProgress: { completed: state.quests.filter(q => q.completed).length, total: state.quests.length },\n      lastUpdate: now,\n    });\n\n    // ============================================================\n    // PHASE 9: STATE MUTATION (atomic)\n    // ============================================================\n    state.user.xp = totalXp;\n    state.user.level = newLevel;\n    state.user.streak = newStreak;\n    state.user.lastQuestCompletedAt = now;\n    state.user.streakRiskLevel = daysSinceLastQuest > 1 ? 'critical' : daysSinceLastQuest === 1 ? 'warning' : 'safe';\n\n    // ============================================================\n    // PHASE 10: NATIVE SYNC (Capacitor + Filesystem)
+002:     // ============================================================
+003:     const syncResult = await syncToNative({
+004:       skillMap,
+005:       user: state.user,
+006:       lastQuestCompletedAt: now,
+007:     });
+008: 
+009:     if (!syncResult.success) {
+010:       result.warnings.push(`Native sync failed: ${syncResult.message}`);
+011:       logCrash(new Error(`Native sync failed: ${syncResult.message}`));
+012:     } else {
+013:       recordSync('preferences');
+014:       recordSync('filesystem');
+015:     }
+016: 
+017:     // ============================================================
+018:     // PHASE 10.5: RECONCILIATION CHECK
+019:     // ============================================================
+020:     const reconciliation = await verifyAndRepairSync({
+021:       state,
+022:       skillMap,
+023:       lastQuestCompletedAt: now,
+024:       cache: getWidgetCache(),
+025:       expectedWidgetData: {
+026:         focusSkillId: focusSkill?.skillId || null,
+027:         focusMastery: focusSkill?.mastery || 0,
+028:         streak: newStreak,
+029:         streakRisk: daysSinceLastQuest > 1 ? 'critical' : daysSinceLastQuest === 1 ? 'warning' : 'safe',
+030:         dailyProgress: { completed: state.quests.filter(q => q.completed).length, total: state.quests.length },
+031:         lastUpdate: now,
+032:       },
+033:     });
+034: 
+035:     if (!reconciliation.ok) {
+036:       result.warnings.push(`Reconciliation failed: ${reconciliation.message}`);
+037:       if (reconciliation.repaired) {
+038:         result.warnings.push('State repaired after reconciliation.');
+039:       }
+040:     }
+041:     // PHASE 11: ANALYTICS TRACKING
+042:     // ============================================================
+043:     trackEvent('quest_completed', {
+044:       questId: context.quest.id,
+045:       skillId: context.quest.skillId,
+046:       xpEarned: result.xpEarned,
+047:       streak: newStreak,
+048:       levelUp: result.leveledUp,
+049:       isDue: context.isDue,
+050:       difficulty: context.difficulty,
+051:     });
+052: 
+053:     // ============================================================
+054:     // PHASE 12: SNAPSHOT FOR VALIDATION
+055:     // ============================================================
+056:     result.stateSnapshot = {
+057:       userLevel: state.user.level,
+058:       userXp: state.user.xp,
+059:       streak: state.user.streak,
+060:       skillMapKeys: Object.keys(skillMap),
+061:       widgetCache: getWidgetCache(),
+062:       timestamp: now,
+063:     };
+064: 
+065:     return result;
+066:   } catch (error) {
+067:     logCrash(error as any);
+068:     result.warnings.push(`Orchestration error: ${error}`);
+069:     return result;
+070:   }
+071: }
+072: 
+073: interface NativeSyncResult {
+074:   success: boolean;
+075:   message: string;
+076: }
+077: 
+078: async function syncToNative(
+079:   data: { skillMap: Record<string, SkillProgress>; user: any; lastQuestCompletedAt: string }
+080: ): Promise<NativeSyncResult> {
+081:   try {
+082:     // Try dynamic import for web compatibility
+083:     const { Preferences } = await import('@capacitor/preferences').catch(() => ({ Preferences: null }));
+084:     const { Filesystem, Directory } = await import('@capacitor/filesystem').catch(() => ({
+085:       Filesystem: null,
+086:       Directory: null,
+087:     }));
+088: 
+089:     const payload = {
+090:       skills: data.skillMap,
+091:       lastQuestCompletedAt: data.lastQuestCompletedAt,
+092:       timestamp: new Date().toISOString(),
+093:     };
+094: 
+095:     if (!Preferences && !Filesystem) {
+096:       return { success: true, message: 'No native sync targets available in this environment.' };
+097:     }
+098: 
+099:     // Write to Preferences (primary)
+100:     if (Preferences) {
+101:       await Preferences.set({
+102:         key: 'lifequest_skills_v1',
+103:         value: JSON.stringify(payload),
+104:       });
+105:     }
+106: 
+107:     // Write to Filesystem (fallback)
+108:     if (Filesystem && Directory) {
+109:       await Filesystem.writeFile({
+110:         path: 'lifequest_skills_v1.json',
+111:         data: JSON.stringify(payload),
+112:         directory: Directory.Data,
+113:       });
+114:     }
+115: 
+116:     return { success: true, message: 'Native sync complete.' };
+117:   } catch (e) {
+118:     const message = e instanceof Error ? e.message : String(e);
+119:     console.warn('Native sync skipped (web environment)', e);
+120:     return { success: false, message };
+121:   }
+122: }
+123: 
+124: async function verifySyncOnly(options: {
+125:   state: AppState;
+126:   skillMap: Record<string, SkillProgress>;
+127:   lastQuestCompletedAt: string;
+128:   cache: Record<string, any>;
+129:   expectedWidgetData: Record<string, any>;
+130: }): Promise<{ ok: boolean; message: string }> {
+131:   const widgetCheck = verifyWidgetCache(options.cache, options.expectedWidgetData);
+132:   const nativeCheck = await verifyNativeState(options.skillMap, options.lastQuestCompletedAt);
+133:   const messages: string[] = [];
+134:   let ok = true;
+135: 
+136:   if (!widgetCheck.ok) {
+137:     messages.push(widgetCheck.message);
+138:     ok = false;
+139:   }
+140: 
+141:   if (!nativeCheck.ok) {
+142:     messages.push(nativeCheck.message);
+143:     ok = false;
+144:   }
+145: 
+146:   return {
+147:     ok,
+148:     message: messages.join(' | '),
+149:   };
+150: }
+151: 
+152: function verifyWidgetCache(cache: Record<string, any>, expected: Record<string, any>): { ok: boolean; message: string } {
+153:   const now = expected.lastUpdate;
+154:   const problems: string[] = [];
+155: 
+156:   if (cache.streak !== expected.streak) {
+157:     problems.push(`streak mismatch (${cache.streak} != ${expected.streak})`);
+158:   }
+159: 
+160:   if (cache.streakRisk !== expected.streakRisk) {
+161:     problems.push(`streakRisk mismatch (${cache.streakRisk} != ${expected.streakRisk})`);
+162:   }
+163: 
+164:   if (cache.dailyProgress?.completed !== expected.dailyProgress?.completed || cache.dailyProgress?.total !== expected.dailyProgress?.total) {
+165:     problems.push('dailyProgress mismatch');
+166:   }
+167: 
+168:   if (cache.lastUpdate !== now) {
+169:     problems.push(`lastUpdate mismatch (${cache.lastUpdate} != ${now})`);
+170:   }
+171: 
+172:   if (problems.length === 0) {
+173:     return { ok: true, message: 'Widget cache verified.' };
+174:   }
+175: 
+176:   return {
+177:     ok: false,
+178:     message: `Widget cache verification failed: ${problems.join('; ')}`,
+179:   };
+180: }
+181: 
+182: async function verifyNativeState(skillMap: Record<string, SkillProgress>, lastQuestCompletedAt: string): Promise<{ ok: boolean; message: string }> {
+183:   try {
+184:     const { Preferences } = await import('@capacitor/preferences').catch(() => ({ Preferences: null }));
+185:     const { Filesystem, Directory } = await import('@capacitor/filesystem').catch(() => ({ Filesystem: null, Directory: null }));
+186: 
+187:     if (!Preferences && !Filesystem) {
+188:       return { ok: true, message: 'Native state unavailable; skipping verification.' };
+189:     }
+190: 
+191:     if (Preferences) {
+192:       const result = await Preferences.get({ key: 'lifequest_skills_v1' });
+193:       const savedValue = result?.value;
+194:       if (savedValue) {
+195:         const payload = JSON.parse(savedValue);
+196:         const keyMatch = compareSkillKeySet(payload.skills, skillMap);
+197:         const timeMatch = payload.lastQuestCompletedAt === lastQuestCompletedAt;
+198:         if (keyMatch && timeMatch) {
+199:           return { ok: true, message: 'Preferences payload verified.' };
+200:         }
+201:         return {
+202:           ok: false,
+203:           message: `Preferences payload mismatch: keyMatch=${keyMatch}, timeMatch=${timeMatch}`,
+204:         };
+205:       }
+206:       return { ok: false, message: 'Preferences payload missing.' };
+207:     }
+208: 
+209:     if (Filesystem && Directory) {
+210:       const data = await Filesystem.readFile({
+211:         path: 'lifequest_skills_v1.json',
+212:         directory: Directory.Data,
+213:       });
+214:       const payload = JSON.parse(data.data || '{}');
+215:       const keyMatch = compareSkillKeySet(payload.skills, skillMap);
+216:       const timeMatch = payload.lastQuestCompletedAt === lastQuestCompletedAt;
+217:       if (keyMatch && timeMatch) {
+218:         return { ok: true, message: 'Filesystem payload verified.' };
+219:       }
+220:       return {
+221:         ok: false,
+222:         message: `Filesystem payload mismatch: keyMatch=${keyMatch}, timeMatch=${timeMatch}`,
+223:       };
+224:     }
+225: 
+226:     return { ok: true, message: 'No native data target available after imports.' };
+227:   } catch (e) {
+228:     return { ok: false, message: e instanceof Error ? e.message : String(e) };
+229:   }
+230: }
+231: 
+232: function compareSkillKeySet(a: Record<string, any>, b: Record<string, any>): boolean {
+233:   if (!a || !b) return false;
+234:   const aKeys = Object.keys(a).sort();
+235:   const bKeys = Object.keys(b).sort();
+236:   if (aKeys.length !== bKeys.length) return false;
+237:   return aKeys.every((key, index) => key === bKeys[index]);
+238: }

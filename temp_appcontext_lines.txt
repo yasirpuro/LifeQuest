@@ -1,0 +1,294 @@
+001: import { useState, useCallback, useEffect, type ReactNode } from 'react';
+002: import type { UserProfile, LocationType, Quest } from '../types';
+003: import { QUESTS, BADGES, generateQuestsForDay, MOCK_FRIENDS } from '../data/quests';
+004: import { AppContext } from './appContextValue';
+005: import type { AppState } from './appContextValue';
+006: import useSkillEngine from '../hooks/useSkillEngine';
+007: import { generateDailyPlan, saveDailyPlan } from '../hooks/useDailyLoop';
+008: import { applyDecayToAllSkills } from '../hooks/useSkillDecay';
+009: import { initRecoveryState, cleanExpiredTokens } from '../hooks/useRecoverySystem';
+010: import { orchestrateQuestCompletion } from '../utils/questCompletionOrchestrator';
+011: import { validateAppState, validateQuestCompletionResult, attemptStateRecovery, isStateHealthy } from '../utils/stateValidator';
+012: import { persistSnapshot } from '../utils/statePersistence';
+013: 
+014: const defaultUser: UserProfile = {
+015:   name: '',
+016:   bio: '',
+017:   avatar: null,
+018:   level: 1,
+019:   xp: 0,
+020:   xpToNext: 100,
+021:   totalQuests: 0,
+022:   streak: 1,
+023:   badges: BADGES,
+024:   isPremium: false,
+025:   
+026:   // Program Meydan Okuma
+027:   challengeActive: false,
+028:   challengeFocus: null,
+029:   challengeDuration: 14,
+030:   challengeStartTimestamp: null,
+031:   challengeDay: 1,
+032:   
+033:   // Recovery System
+034:   recoveryState: initRecoveryState(),
+035:   streakRiskLevel: 'safe',
+036:   lastQuestCompletedAt: null,
+037: };
+038: 
+039:   // Başlangıç State'ini Yükleyen Yardımcı
+040: const getInitialState = (): AppState => {
+041:   const saved = localStorage.getItem('lifequest_state');
+042:   if (saved) {
+043:     try {
+044:       const parsed = JSON.parse(saved) as AppState;
+045:       
+046:       // Initialize recovery state if missing
+047:       if (!parsed.user.recoveryState) {
+048:         parsed.user.recoveryState = initRecoveryState();
+049:       }
+050:       
+051:       // Günlük gün geçişini kontrol et
+052:       if (parsed.user && parsed.user.challengeActive && parsed.user.challengeStartTimestamp) {
+053:         const startTime = new Date(parsed.user.challengeStartTimestamp).setHours(0, 0, 0, 0);
+054:         const todayTime = new Date().setHours(0, 0, 0, 0);
+055:         const diffTime = Math.abs(todayTime - startTime);
+056:         const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+057:         const currentDay = Math.min(parsed.user.challengeDuration, diffDays);
+058:         
+059:         if (currentDay !== parsed.user.challengeDay) {
+060:           parsed.user.challengeDay = currentDay;
+061:           
+062:           // Eski meydan okuma görevlerini kaldır, yeni günün görevlerini ekle
+063:           const customQuests = parsed.quests.filter(q => !q.isChallenge);
+064:           if (parsed.user.challengeFocus) {
+065:             const dailyQuests = generateQuestsForDay(parsed.user.challengeFocus, currentDay);
+066:             parsed.quests = [...dailyQuests, ...customQuests];
+067:           }
+068:         }
+069:         if (!parsed.friends) {
+070:           parsed.friends = MOCK_FRIENDS;
+071:         }
+072:       }
+073:       return parsed;
+074:     } catch (e) {
+075:       console.error('State parse hatası:', e);
+076:     }
+077:   }
+078:   return {
+079:     user: defaultUser,
+080:     quests: QUESTS,
+081:     selectedLocation: null,
+082:     onboardingComplete: false,
+083:     freeQuestsToday: 5,
+084:     freeLocationsToday: 1,
+085:     showPremiumModal: false,
+086:     friends: MOCK_FRIENDS,
+087:   };
+088: };
+089: 
+090: export function AppProvider({ children }: { children: ReactNode }) {
+091:   const [state, setState] = useState<AppState>(getInitialState);
+092:   const [completionResult, setCompletionResult] = useState<any>(null);
+093:   const skillEngine = useSkillEngine();
+094: 
+095:   // NOTE: Persistence is now handled by completeQuest() via persistenceOwner
+096:   // Direct localStorage writes disabled to enforce single-writer pattern
+097: 
+098:   const setUser = useCallback((partial: Partial<UserProfile>) => {
+099:     setState(prev => ({ ...prev, user: { ...prev.user, ...partial } }));
+100:   }, []);
+101: 
+102:   const setSelectedLocation = useCallback((loc: LocationType) => {
+103:     setState(prev => {
+104:       if (!prev.user.isPremium && prev.freeLocationsToday <= 0 && prev.selectedLocation !== loc) {
+105:         return { ...prev, showPremiumModal: true };
+106:       }
+107:       const usedFree = prev.selectedLocation !== loc && !prev.user.isPremium
+108:         ? prev.freeLocationsToday - 1
+109:         : prev.freeLocationsToday;
+110:       return { ...prev, selectedLocation: loc, freeLocationsToday: usedFree };
+111:     });
+112:   }, []);
+113: 
+114:   const completeQuest = useCallback(
+115:     async (questId: string, verificationNote?: string) => {
+116:       const questBefore = state.quests.find(q => q.id === questId);
+117:       if (!questBefore) {
+118:         console.error(`Quest ${questId} not found`);
+119:         return;
+120:       }
+121: 
+122:       // Snapshot before mutation
+123:       const prevState = JSON.parse(JSON.stringify(state));
+124: 
+125:       // Build orchestration context
+126:       const context = {
+127:         quest: questBefore,
+128:         difficulty: (questBefore.difficulty || 1) as 1 | 2 | 3 | 4 | 5,
+129:         isDue: questBefore.timeSlot ? new Date().getHours() >= 12 : false,
+130:         isChallenge: questBefore.isChallenge || false,
+131:         streak: state.user?.streak ?? 0,
+132:       };
+133: 
+134:       // ORCHESTRATE: Run deterministic 12-phase flow
+135:       let result;
+136:       try {\n        result = await orchestrateQuestCompletion(state, context, skillEngine);
+137:       } catch (e) {
+138:         console.error('Orchestration failed:', e);
+139:         return;
+140:       }\n\n      // Store result for notification/UI feedback\n      setCompletionResult(result);\n\n      // VALIDATE: Check state integrity\n      const validation = validateQuestCompletionResult(prevState, state, result.xpEarned);\n      if (!validation.isValid) {\n        console.error('State validation failed:', validation.errors);\n        // Attempt recovery\n        const recovered = attemptStateRecovery(state);\n        setState(recovered);\n        return;\n      }\n\n      if (validation.warnings.length > 0) {\n        console.warn('State warnings:', validation.warnings);\n      }\n\n      // Update quest completion\n      setState(prev => {\n        const updated = { ...prev };\n        const qIdx = updated.quests.findIndex(q => q.id === questId);\n        if (qIdx !== -1) {\n          updated.quests[qIdx] = {\n            ...updated.quests[qIdx],\n            completed: true,\n            verificationNote: verificationNote || updated.quests[qIdx].verificationNote,\n          };\n        }\n\n        // Sync result into state\n        if (result.leveledUp && result.newLevel) {\n          updated.user.level = result.newLevel;\n        }\n\n        return updated;\n      });\n\n      // Log validation result\n      if (result.stateSnapshot) {\n        console.log('[Quest Completion] State snapshot:', result.stateSnapshot);\n      }\n\n      if (result.warnings.length > 0) {\n        console.warn('[Quest Completion] Warnings:', result.warnings);\n      }\n    },\n    [state, skillEngine]\n  );
+141: 
+142:   const startChallenge = useCallback((focus: LocationType, duration: number) => {
+143:     setState(prev => {
+144:       const dailyQuests = generateQuestsForDay(focus, 1);
+145:       return {
+146:         ...prev,
+147:         quests: dailyQuests,
+148:         user: {
+149:           ...prev.user,
+150:           challengeActive: true,
+151:           challengeFocus: focus,
+152:           challengeDuration: duration,
+153:           challengeStartTimestamp: new Date().toISOString(),
+154:           challengeDay: 1
+155:         }
+156:       };
+157:     });
+158:   }, []);
+159: 
+160:   const resetChallenge = useCallback(() => {
+161:     setState(prev => {
+162:       return {
+163:         ...prev,
+164:         quests: QUESTS,
+165:         user: {
+166:           ...prev.user,
+167:           challengeActive: false,
+168:           challengeFocus: null,
+169:           challengeStartTimestamp: null,
+170:           challengeDay: 1
+171:         }
+172:       };
+173:     });
+174:   }, []);
+175: 
+176:   const addQuest = useCallback((title: string, difficulty: number) => {
+177:     setState(prev => {
+178:       const category = prev.selectedLocation || 'kisisel-gelisim';
+179:       const dopamine = difficulty === 1 ? 15 : difficulty === 3 ? 30 : 50;
+180:       const duration = difficulty === 1 ? 5 : difficulty === 3 ? 15 : 30;
+181:       
+182:       const newQuest: Quest = {
+183:         id: 'q_' + Date.now(),
+184:         title,
+185:         description: 'Kendi eklediğin özel gelişim hedefi.',
+186:         location: category,
+187:         skillId: skillEngine?.skills?.find(s => s.id === category)?.id || null,
+188:         difficulty: difficulty as 1 | 2 | 3 | 4 | 5,
+189:         duration,
+190:         dopamine,
+191:         calories: 0,
+192:         scienceTag: 'Kişisel Disiplin',
+193:         completed: false,
+194:         locked: false,
+195:         isChallenge: false,
+196:       };
+197: 
+198:       return {
+199:         ...prev,
+200:         quests: [newQuest, ...prev.quests],
+201:       };
+202:     });
+203:   }, []);
+204: 
+205:   const completeOnboarding = useCallback(() => {
+206:     setState(prev => ({ ...prev, onboardingComplete: true }));
+207:   }, []);
+208: 
+209:   const setShowPremiumModal = useCallback((show: boolean) => {
+210:     setState(prev => ({ ...prev, showPremiumModal: show }));
+211:   }, []);
+212: 
+213:   const canAccessLocation = useCallback((loc: LocationType) => {
+214:     return state.user.isPremium || state.freeLocationsToday > 0 || state.selectedLocation === loc;
+215:   }, [state.user.isPremium, state.freeLocationsToday, state.selectedLocation]);
+216: 
+217:   const canDoQuest = useCallback(() => {
+218:     return state.user.isPremium || state.freeQuestsToday > 0;
+219:   }, [state.user.isPremium, state.freeQuestsToday]);
+220: 
+221:   const sendSupportToFriend = useCallback((friendId: string) => {
+222:     setState(prev => {
+223:       const friendIndex = prev.friends.findIndex(f => f.id === friendId);
+224:       if (friendIndex === -1) return prev;
+225:       
+226:       const friend = prev.friends[friendIndex];
+227:       if (friend.sentSupportToday) return prev;
+228: 
+229:       const newXp = friend.xp + 10;
+230:       let newLevel = friend.level;
+231:       let xpToNext = friend.xpToNext;
+232:       
+233:       if (newXp >= xpToNext) {
+234:         newLevel++;
+235:         xpToNext = newLevel * 100;
+236:       }
+237: 
+238:       const updatedFriends = prev.friends.map((f, idx) => {
+239:         if (idx === friendIndex) {
+240:           return {
+241:             ...f,
+242:             xp: newXp >= xpToNext ? newXp - xpToNext : newXp,
+243:             level: newLevel,
+244:             xpToNext,
+245:             sentSupportToday: true
+246:           };
+247:         }
+248:         return f;
+249:       });
+250: 
+251:       const activeUserXp = prev.user.xp + 5;
+252:       let activeUserLevel = prev.user.level;
+253:       let activeUserXpToNext = prev.user.xpToNext;
+254:       
+255:       if (activeUserXp >= activeUserXpToNext) {
+256:         activeUserLevel++;
+257:         activeUserXpToNext = activeUserLevel * 100;
+258:       }
+259: 
+260:       return {
+261:         ...prev,
+262:         friends: updatedFriends,
+263:         user: {
+264:           ...prev.user,
+265:           xp: activeUserXp >= activeUserXpToNext ? activeUserXp - activeUserXpToNext : activeUserXp,
+266:           level: activeUserLevel,
+267:           xpToNext: activeUserXpToNext
+268:         }
+269:       };
+270:     });
+271:   }, []);
+272: 
+273:   return (
+274:     <AppContext.Provider value={{
+275:       ...state,
+276:       skillEngine,
+277:       completionResult,
+278:       setUser,
+279:       setSelectedLocation,
+280:       completeQuest,
+281:       addQuest,
+282:       completeOnboarding,
+283:       setShowPremiumModal,
+284:       canAccessLocation,
+285:       canDoQuest,
+286:       startChallenge,
+287:       resetChallenge,
+288:       sendSupportToFriend,
+289:     }}>
+290:       {children}
+291:     </AppContext.Provider>
+292:   );
+293: }
+294: 

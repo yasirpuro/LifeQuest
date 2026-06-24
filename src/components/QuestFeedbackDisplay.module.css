@@ -1,0 +1,19 @@
+.container{position:fixed;top:20px;right:20px;background:#0d0d1a;border:1px solid rgba(30,144,255,0.3);border-radius:12px;padding:20px;max-width:300px;box-shadow:0 10px 40px rgba(0,0,0,0.6);animation:slideInRight 0.4s ease;z-index:1000}
+@keyframes slideInRight{from{transform:translateX(400px);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes fadeOutRight{from{transform:translateX(0);opacity:1}to{transform:translateX(400px);opacity:0}}
+.container.fadeOut{animation:fadeOutRight 0.4s ease forwards}
+.section{margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,0.1)}
+.section:last-child{border-bottom:none;margin-bottom:0}
+.emoji{font-size:32px;margin-bottom:8px}
+.section h3{font-size:18px;font-weight:700;color:#fff;margin:8px 0}
+.section h4{font-size:14px;font-weight:600;color:#1e90ff;margin:0 0 6px 0}
+.section p{font-size:12px;color:#aaa;margin:0;line-height:1.4}
+.levelUp{background:linear-gradient(135deg, rgba(0,255,100,0.1) 0%, rgba(30,144,255,0.1) 100%);border:1px solid rgba(0,255,100,0.2);border-radius:8px;padding:12px}
+.levelUp h3{color:#00ff64}
+.notification{background:rgba(30,144,255,0.08);border-left:3px solid #1e90ff;padding:8px;border-radius:4px;margin-bottom:8px}
+.notification:last-child{margin-bottom:0}
+.warnings{background:rgba(255,150,0,0.1);border-left:3px solid #ff9600;padding:8px;border-radius:4px}
+.warningLabel{font-weight:600;color:#ff9600;margin:0 0 4px 0}
+.warningText{color:#ff9600;margin:2px 0;font-size:11px}
+.stateHealth{text-align:center;font-size:11px;color:#888;padding-top:8px;border-top:1px solid rgba(255,255,255,0.05)}
+.indicator{color:#00ff64;font-weight:600}

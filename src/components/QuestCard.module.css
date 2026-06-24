@@ -1,0 +1,186 @@
+.card {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  animation: fadeInUp 0.5s ease forwards;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  border-color: rgba(108, 99, 255, 0.3);
+  box-shadow: 0 0 30px rgba(108, 99, 255, 0.1);
+}
+
+.card.completed {
+  border-color: rgba(0, 255, 136, 0.2);
+  background: rgba(0, 255, 136, 0.03);
+}
+
+.card.locked {
+  opacity: 0.6;
+}
+
+.lockOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  z-index: 2;
+  color: #ffa502;
+  font-weight: 600;
+  font-size: 14px;
+  border-radius: 16px;
+  cursor: pointer;
+}
+
+.header {
+  margin-bottom: 12px;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.title {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.difficulty {
+  display: flex;
+  gap: 2px;
+  font-size: 12px;
+}
+
+.star {
+  color: rgba(255, 255, 255, 0.15);
+}
+
+.starActive {
+  color: #ffa502;
+}
+
+.description {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.55);
+  line-height: 1.5;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: rgba(108, 99, 255, 0.1);
+  border: 1px solid rgba(108, 99, 255, 0.15);
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.scienceTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #00d4ff;
+  margin-bottom: 14px;
+  padding: 4px 0;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.completeBtn {
+  flex: 1;
+  padding: 12px;
+  background: linear-gradient(135deg, #6C63FF, #00d4ff);
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.completeBtn:hover {
+  box-shadow: 0 0 20px rgba(108, 99, 255, 0.4);
+  transform: translateY(-1px);
+}
+
+.doneBtn {
+  flex: 1;
+  padding: 12px;
+  background: rgba(0, 255, 136, 0.1);
+  border: 1px solid rgba(0, 255, 136, 0.2);
+  color: #00ff88;
+  font-weight: 600;
+  font-size: 14px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.shareBtn {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  transition: all 0.2s;
+}
+
+.shareBtn:hover {
+  color: #6C63FF;
+  border-color: rgba(108, 99, 255, 0.3);
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.proofNote {
+  background: rgba(108, 99, 255, 0.08);
+  border: 1px dashed rgba(108, 99, 255, 0.2);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.4;
+}
+
+.proofNote span {
+  font-weight: 600;
+  color: #6C63FF;
+}
+

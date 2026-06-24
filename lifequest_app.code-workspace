@@ -1,0 +1,26 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": ".well-known"
+		},
+		{
+			"path": "android"
+		},
+		{
+			"path": "docs"
+		},
+		{
+			"path": "icons"
+		},
+		{
+			"path": "scripts"
+		},
+		{
+			"path": "twa"
+		}
+	],
+	"settings": {}
+}

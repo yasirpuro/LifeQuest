@@ -1,0 +1,11 @@
+# Android SDK yolu (Windows örnek)
+# sdk.dir=C\:\\Users\\USER\\AppData\\Local\\Android\\Sdk
+
+# TWA hedef domain — canlı HTTPS siteniz
+LQ_HOST=lifequest.app
+
+# İmzalama (release AAB için)
+LQ_KEYSTORE=../release.keystore
+LQ_KEYSTORE_PASSWORD=degistir
+LQ_KEY_ALIAS=lifequest
+LQ_KEY_PASSWORD=degistir

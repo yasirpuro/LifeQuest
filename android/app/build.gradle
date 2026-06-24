@@ -1,0 +1,69 @@
+plugins {
+    id 'com.android.application'
+}
+
+def twaHost = project.findProperty('LQ_HOST') ?: 'lifequest.app'
+def twaScheme = 'https'
+def twaStartUrl = "${twaScheme}://${twaHost}/index.html"
+
+android {
+    namespace 'app.lifequest.twa'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'app.lifequest.twa'
+        minSdk 23
+        targetSdk 34
+        versionCode 1
+        versionName '1.0.0'
+
+        manifestPlaceholders = [
+            hostName: twaHost,
+            defaultUrl: twaStartUrl,
+            launchUrl: twaStartUrl,
+            webManifestUrl: "${twaScheme}://${twaHost}/manifest.json"
+        ]
+
+        resValue 'string', 'appName', 'LifeQuest'
+        resValue 'color', 'colorPrimary', '#0B0F19'
+        resValue 'color', 'navigationColor', '#0B0F19'
+    }
+
+    signingConfigs {
+        release {
+            def keystorePath = project.findProperty('LQ_KEYSTORE') ?: '../release.keystore'
+            def keystoreFile = file(keystorePath)
+            if (keystoreFile.exists()) {
+                storeFile keystoreFile
+                storePassword project.findProperty('LQ_KEYSTORE_PASSWORD') ?: ''
+                keyAlias project.findProperty('LQ_KEY_ALIAS') ?: 'lifequest'
+                keyPassword project.findProperty('LQ_KEY_PASSWORD') ?: ''
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            def keystorePath = project.findProperty('LQ_KEYSTORE') ?: '../release.keystore'
+            if (file(keystorePath).exists()) {
+                signingConfig signingConfigs.release
+            }
+        }
+        debug {
+            applicationIdSuffix '.debug'
+            versionNameSuffix '-debug'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.5.0'
+    implementation 'androidx.core:core:1.13.1'
+}

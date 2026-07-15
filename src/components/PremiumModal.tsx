@@ -1,9 +1,9 @@
 import { Crown, X, Zap, Users, MapPin, Award, Check } from 'lucide-react';
-import { useApp } from '../hooks/useApp';
+import { useQuest } from '../features/quests/questContext';
 import styles from './PremiumModal.module.css';
 
 export default function PremiumModal() {
-  const { showPremiumModal, setShowPremiumModal, setUser } = useApp();
+  const { showPremiumModal, setShowPremiumModal } = useQuest();
 
   if (!showPremiumModal) return null;
 
@@ -47,7 +47,8 @@ export default function PremiumModal() {
         <button
           className={styles.cta}
           onClick={() => {
-            setUser({ isPremium: true });
+            // Premium upgrade logic would go here
+            // For now, just close the modal
             setShowPremiumModal(false);
           }}
         >

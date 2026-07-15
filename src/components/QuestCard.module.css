@@ -1,50 +1,67 @@
 .card {
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--bg-card);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 16px;
-  padding: 20px;
+  border: 1px solid var(--border-default);
+  border-radius: 18px;
+  padding: 22px;
   position: relative;
   overflow: hidden;
-  animation: fadeInUp 0.5s ease forwards;
+  animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   opacity: 0;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-card);
 }
 
 .card:hover {
-  border-color: rgba(108, 99, 255, 0.3);
-  box-shadow: 0 0 30px rgba(108, 99, 255, 0.1);
+  border-color: rgba(134, 59, 255, 0.3);
+  box-shadow: var(--shadow-glow);
+  transform: translateY(-2px);
 }
 
 .card.completed {
-  border-color: rgba(0, 255, 136, 0.2);
-  background: rgba(0, 255, 136, 0.03);
+  border-color: rgba(0, 230, 118, 0.25);
+  background: rgba(0, 230, 118, 0.03);
+  box-shadow: 0 4px 20px rgba(0, 230, 118, 0.05);
+}
+
+.card.completed:hover {
+  border-color: rgba(0, 230, 118, 0.4);
+  box-shadow: 0 0 20px var(--green-glow);
 }
 
 .card.locked {
-  opacity: 0.6;
+  opacity: 0.65;
 }
 
 .lockOverlay {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(4px);
+  background: rgba(7, 8, 15, 0.75);
+  backdrop-filter: blur(6px);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 8px;
   z-index: 2;
-  color: #ffa502;
-  font-weight: 600;
+  color: var(--accent-cyan);
+  font-weight: 700;
   font-size: 14px;
-  border-radius: 16px;
+  border-radius: 18px;
   cursor: pointer;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+}
+
+.lockOverlay:hover {
+  background: rgba(7, 8, 15, 0.65);
+  color: #fff;
+  text-shadow: 0 0 10px var(--cyan-glow);
 }
 
 .header {
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .titleRow {
@@ -52,30 +69,35 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: 6px;
+  gap: 12px;
 }
 
 .title {
-  font-size: 17px;
-  font-weight: 700;
+  font-size: 18px;
+  font-weight: 800;
+  font-family: 'Space Grotesk', sans-serif;
+  color: #fff;
+  line-height: 1.25;
 }
 
 .difficulty {
   display: flex;
-  gap: 2px;
-  font-size: 12px;
+  gap: 3px;
+  font-size: 13px;
 }
 
 .star {
-  color: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.12);
 }
 
 .starActive {
-  color: #ffa502;
+  color: #ffb300;
+  text-shadow: 0 0 8px rgba(255, 179, 0, 0.4);
 }
 
 .description {
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--text-secondary);
   line-height: 1.5;
 }
 
@@ -83,20 +105,30 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .tag {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
-  background: rgba(108, 99, 255, 0.1);
-  border: 1px solid rgba(108, 99, 255, 0.15);
+  gap: 5px;
+  padding: 5px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-default);
   border-radius: 20px;
   font-size: 12px;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.7);
+  font-weight: 600;
+  color: var(--text-secondary);
+  transition: all 0.2s;
+}
+
+.tag:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-primary);
+}
+
+.tag svg {
+  color: var(--accent-light);
 }
 
 .scienceTag {
@@ -104,39 +136,45 @@
   align-items: center;
   gap: 6px;
   font-size: 12px;
-  color: #00d4ff;
-  margin-bottom: 14px;
-  padding: 4px 0;
+  font-weight: 600;
+  color: var(--accent-cyan);
+  margin-bottom: 16px;
+  padding: 4px 8px;
+  background: var(--cyan-soft);
+  border-radius: 6px;
 }
 
 .actions {
   display: flex;
   gap: 8px;
+  width: 100%;
 }
 
 .completeBtn {
   flex: 1;
-  padding: 12px;
-  background: linear-gradient(135deg, #6C63FF, #00d4ff);
+  padding: 13px;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-cyan) 100%);
   color: white;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 14px;
   border-radius: 12px;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 15px rgba(134, 59, 255, 0.2);
 }
 
 .completeBtn:hover {
-  box-shadow: 0 0 20px rgba(108, 99, 255, 0.4);
+  box-shadow: 0 6px 20px rgba(134, 59, 255, 0.4);
   transform: translateY(-1px);
+  filter: brightness(1.08);
 }
 
 .doneBtn {
   flex: 1;
-  padding: 12px;
-  background: rgba(0, 255, 136, 0.1);
-  border: 1px solid rgba(0, 255, 136, 0.2);
-  color: #00ff88;
-  font-weight: 600;
+  padding: 13px;
+  background: var(--green-soft);
+  border: 1px solid rgba(0, 230, 118, 0.2);
+  color: var(--green);
+  font-weight: 700;
   font-size: 14px;
   border-radius: 12px;
   display: flex;
@@ -146,41 +184,41 @@
 }
 
 .shareBtn {
-  width: 44px;
-  height: 44px;
+  width: 46px;
+  height: 46px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-default);
   border-radius: 12px;
-  color: rgba(255, 255, 255, 0.5);
-  transition: all 0.2s;
+  color: var(--text-muted);
+  transition: all 0.25s ease;
 }
 
 .shareBtn:hover {
-  color: #6C63FF;
-  border-color: rgba(108, 99, 255, 0.3);
+  color: var(--accent-cyan);
+  border-color: rgba(71, 191, 255, 0.3);
+  background: rgba(71, 191, 255, 0.05);
 }
 
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(20px); }
+  from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 .proofNote {
-  background: rgba(108, 99, 255, 0.08);
-  border: 1px dashed rgba(108, 99, 255, 0.2);
-  border-radius: 8px;
-  padding: 8px 12px;
-  margin-bottom: 12px;
+  background: var(--accent-soft);
+  border: 1.5px dashed rgba(134, 59, 255, 0.2);
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.85);
-  line-height: 1.4;
+  color: var(--text-primary);
+  line-height: 1.45;
 }
 
 .proofNote span {
-  font-weight: 600;
-  color: #6C63FF;
+  font-weight: 700;
+  color: var(--accent-light);
 }
-

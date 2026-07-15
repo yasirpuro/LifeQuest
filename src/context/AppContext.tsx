@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, type ReactNode } from 'react';
-import type { UserProfile, LocationType, Quest } from '../types';
+import type { UserProfile, LocationType, Quest, RewardEvent } from '../types';
 import { QUESTS, BADGES, generateQuestsForDay, MOCK_FRIENDS } from '../data/quests';
 import { AppContext } from './appContextValue';
 import type { AppState } from './appContextValue';
@@ -52,6 +52,7 @@ const getInitialState = (): AppState => ({
 export function AppProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AppState>(getInitialState);
   const [completionResult, setCompletionResult] = useState<any>(null);
+  const [rewardEvent, setRewardEvent] = useState<RewardEvent | null>(null);
   const skillEngine = useSkillEngine();
 
   // Persist a snapshot whenever the in-memory state or skill progress changes.
@@ -135,6 +136,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       } catch (e) {
         console.error('Orchestration failed:', e);
         return;
+      }
+
+      // If orchestration generated a reward event, store it
+      if (result.rewardEvent) {
+        setRewardEvent(result.rewardEvent);
       }
 
       // Store result for notification/UI feedback
@@ -357,6 +363,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       ...state,
       skillEngine,
       completionResult,
+      rewardEvent,
+      setRewardEvent,
       setUser,
       setSelectedLocation,
       completeQuest,

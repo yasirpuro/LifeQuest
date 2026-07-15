@@ -40,7 +40,30 @@ export interface Badge {
   premium: boolean;
 }
 
+export type RewardTier = 'none' | 'small' | 'medium' | 'jackpot' | 'near_miss' | 'identity';
+
+export interface RewardMemory {
+  tier: RewardTier;
+  amount: number;
+  timestamp: string; // ISO
+}
+
+export interface RewardEvent {
+  tier: RewardTier;
+  amount: number;
+  questTitle: string;
+  timestamp: string;
+  identityTitle?: string;
+}
+
+export interface MetaSkills {
+  focus: MetaSkill; // Based on quest completion streak and focus sessions
+  discipline: MetaSkill; // Based on streak maintenance and consistency
+  consistency: MetaSkill; // Based on daily completion patterns
+}
+
 export interface UserProfile {
+  id?: string;
   name: string;
   bio: string;
   avatar: string | null;
@@ -51,6 +74,9 @@ export interface UserProfile {
   streak: number;
   badges: Badge[];
   isPremium: boolean;
+  skillsProgress?: Record<string, any>;
+  dailyXp?: { date: string; earned: number };
+  lastActiveDay?: string | null;
   
   // Program Meydan Okuma Alanları
   challengeActive: boolean;
@@ -65,6 +91,14 @@ export interface UserProfile {
   // Streak psychology
   lastQuestCompletedAt?: string | null; // ISO timestamp
   streakRiskLevel?: 'safe' | 'warning' | 'critical'; // based on inactivity
+
+  // Variable Reward System state
+  tasksCompletedToday?: number;
+  jackpotCooldown?: number;
+  lastReward?: RewardMemory | null;
+  
+  // Meta Progression
+  metaSkills?: MetaSkills;
 }
 
 export interface Friend {
@@ -128,6 +162,54 @@ export interface SkillProgress {
   // Decay system
   decayRate: number; // 0..1, how much mastery drops per week of inactivity
   lastDecayCheck?: string | null; // ISO timestamp of last decay calc
+}
+
+// ─── META PROGRESSION SYSTEM ──────────────────────────────────────────────────
+// Character development beyond XP - passive abilities that evolve through behavior
+
+export type MetaSkillType = 'focus' | 'discipline' | 'consistency';
+
+export interface MetaSkill {
+  type: MetaSkillType;
+  level: number; // 1..10
+  xp: number;
+  xpToNext: number;
+  // Passive benefits at each level
+  benefits: {
+    level: number;
+    description: string;
+    effect: string; // e.g., "+5% bonus chance", "streak decay slower"
+  }[];
+}
+
+export interface MetaSkills {
+  focus: MetaSkill; // Based on quest completion streak and focus sessions
+  discipline: MetaSkill; // Based on streak maintenance and consistency
+  consistency: MetaSkill; // Based on daily completion patterns
+}
+
+// ─── IDENTITY REWARDS SYSTEM ───────────────────────────────────────────────────
+// Meaning injection beyond dopamine - character-defining achievements
+
+export interface IdentityReward {
+  id: string;
+  title: string; // e.g., "FOCUS MASTER", "DISCIPLINE ELITE"
+  description: string; // e.g., "Bugün 5 görev tamamladın"
+  icon: string;
+  rarity: 'legendary' | 'epic' | 'rare';
+  earnedAt: string; // ISO timestamp
+  category: 'focus' | 'discipline' | 'consistency' | 'streak' | 'milestone';
+}
+
+// ─── SESSION CHAINING SYSTEM ───────────────────────────────────────────────────
+// Momentum triggers to extend session length
+
+export interface SessionChain {
+  consecutiveQuests: number; // Quests completed in current session
+  bonusMultiplier: number; // Current bonus multiplier
+  nextBonusThreshold: number; // Quests needed for next bonus
+  active: boolean;
+  startedAt: string; // ISO timestamp
 }
 
 export interface SkillTreeNode extends Skill {

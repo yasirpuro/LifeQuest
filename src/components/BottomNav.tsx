@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Home, Compass, Users, User } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styles from './BottomNav.module.css';
@@ -9,7 +10,7 @@ const tabs = [
   { path: '/profile', icon: User, label: 'Profil' },
 ];
 
-export default function BottomNav() {
+function BottomNav() {
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -33,3 +34,5 @@ export default function BottomNav() {
     </nav>
   );
 }
+
+export default memo(BottomNav);

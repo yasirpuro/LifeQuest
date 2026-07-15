@@ -1,6 +1,6 @@
 .page {
   min-height: 100dvh;
-  padding: 20px;
+  padding: 20px 16px;
   padding-bottom: 0;
   max-width: 480px;
   margin: 0 auto;
@@ -9,8 +9,8 @@
 
 /* ── MY LEAGUE CARD ─────────────────────────────────────────────────────────── */
 .myLeagueCard {
-  background: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
-  border: 1px solid rgba(255,255,255,0.08);
+  background: linear-gradient(135deg, rgba(134, 59, 255, 0.12) 0%, rgba(71, 191, 255, 0.05) 100%);
+  border: 1px solid var(--border-default);
   border-radius: 20px;
   padding: 18px 20px 14px;
   margin-bottom: 16px;
@@ -20,18 +20,13 @@
   gap: 4px;
   position: relative;
   overflow: hidden;
+  box-shadow: var(--shadow-card);
+  transition: all 0.3s ease;
 }
 
-.myLeagueCard::before {
-  content: '';
-  position: absolute;
-  top: -40px;
-  right: -40px;
-  width: 120px;
-  height: 120px;
-  background: radial-gradient(circle, currentColor 0%, transparent 70%);
-  opacity: 0.04;
-  border-radius: 50%;
+.myLeagueCard:hover {
+  border-color: rgba(134, 59, 255, 0.25);
+  box-shadow: var(--shadow-glow);
 }
 
 .myLeagueLeft {
@@ -42,21 +37,23 @@
 
 .myLeagueTier {
   font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  opacity: 0.9;
+  color: var(--accent-light);
 }
 
 .myLeagueName {
   font-size: 22px;
   font-weight: 800;
   line-height: 1.2;
+  font-family: 'Space Grotesk', sans-serif;
+  color: #fff;
 }
 
 .myLeagueTitle {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-secondary);
 }
 
 .myLeagueRight {
@@ -69,26 +66,30 @@
   width: 64px;
   height: 64px;
   border-radius: 16px;
-  border: 1.5px solid transparent;
+  background: var(--accent-soft);
+  border: 1.5px solid rgba(134, 59, 255, 0.25);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 0;
+  box-shadow: 0 4px 12px rgba(134, 59, 255, 0.15);
 }
 
 .myLevelNum {
   font-size: 24px;
   font-weight: 900;
+  color: var(--accent-light);
+  font-family: 'Space Grotesk', sans-serif;
   line-height: 1;
 }
 
 .myLevelLabel {
   font-size: 9px;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
-  opacity: 0.5;
-  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+  letter-spacing: 0.05em;
 }
 
 .myLeagueBottom {
@@ -109,19 +110,20 @@
   align-items: center;
   gap: 4px;
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-secondary);
+  font-weight: 600;
 }
 
 .myXpBar {
   height: 6px;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 99px;
   overflow: hidden;
 }
 
 .myXpFill {
   height: 100%;
-  background: linear-gradient(90deg, #6C63FF, #00d4ff);
+  background: linear-gradient(90deg, var(--accent) 0%, var(--accent-cyan) 100%);
   border-radius: 99px;
   transition: width 0.6s ease;
 }
@@ -139,25 +141,28 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 10px 12px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 11px 12px;
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-default);
   border-radius: 12px;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-secondary);
   font-size: 13px;
-  font-weight: 600;
-  transition: all 0.2s;
+  font-weight: 700;
+  transition: all 0.3s ease;
+  cursor: pointer;
 }
 
 .tab:hover {
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.7);
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+  border-color: rgba(134, 59, 255, 0.15);
 }
 
 .tabActive {
-  background: rgba(108, 99, 255, 0.12);
-  border-color: rgba(108, 99, 255, 0.3);
-  color: #9d99ff;
+  background: var(--accent-soft) !important;
+  border-color: rgba(134, 59, 255, 0.3) !important;
+  color: var(--accent-light) !important;
 }
 
 /* ── SEARCH ─────────────────────────────────────────────────────────────────── */
@@ -171,23 +176,25 @@
   left: 13px;
   top: 50%;
   transform: translateY(-50%);
-  color: rgba(255, 255, 255, 0.3);
+  color: var(--text-muted);
 }
 
 .searchInput {
   width: 100%;
-  padding: 11px 16px 11px 38px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 12px 16px 12px 38px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-default);
   border-radius: 12px;
   color: white;
   font-size: 14px;
-  transition: border-color 0.2s;
+  transition: all 0.3s ease;
 }
 
 .searchInput:focus {
-  border-color: rgba(108, 99, 255, 0.4);
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 10px var(--cyan-glow);
   outline: none;
+  background: rgba(26, 28, 54, 0.3);
 }
 
 .lockIcon {
@@ -195,7 +202,7 @@
   right: 13px;
   top: 50%;
   transform: translateY(-50%);
-  color: #ffa502;
+  color: #ffaa00;
 }
 
 /* ── SECTION ─────────────────────────────────────────────────────────────────── */
@@ -215,8 +222,9 @@
   align-items: center;
   gap: 6px;
   font-size: 15px;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.85);
+  font-weight: 800;
+  color: #fff;
+  font-family: 'Space Grotesk', sans-serif;
 }
 
 .addBtn {
@@ -224,17 +232,19 @@
   align-items: center;
   gap: 4px;
   padding: 6px 12px;
-  background: rgba(108, 99, 255, 0.1);
-  border: 1px solid rgba(108, 99, 255, 0.25);
+  background: var(--accent-soft);
+  border: 1px solid rgba(134, 59, 255, 0.25);
   border-radius: 8px;
-  color: #9d99ff;
+  color: var(--accent-light);
   font-size: 12px;
-  font-weight: 600;
-  transition: all 0.2s;
+  font-weight: 700;
+  transition: all 0.25s ease;
+  cursor: pointer;
 }
 
 .addBtn:hover {
-  background: rgba(108, 99, 255, 0.18);
+  background: rgba(134, 59, 255, 0.2);
+  transform: translateY(-1px);
 }
 
 /* ── LEAGUE BADGES ───────────────────────────────────────────────────────────── */
@@ -254,26 +264,34 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
   padding: 8px 10px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
   border-radius: 10px;
-  min-width: 52px;
+  min-width: 54px;
   font-size: 16px;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
+  cursor: pointer;
 }
 
 .leagueBadgeActive {
   transform: scale(1.05);
+  border-color: var(--accent-cyan);
+  background: var(--cyan-soft);
+  box-shadow: 0 0 10px var(--cyan-glow);
 }
 
 .leagueBadgeName {
   font-size: 9px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.3px;
-  color: rgba(255, 255, 255, 0.4);
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+}
+
+.leagueBadgeActive .leagueBadgeName {
+  color: var(--accent-cyan);
 }
 
 /* ── LEADERBOARD LIST ─────────────────────────────────────────────────────────── */
@@ -288,41 +306,47 @@
   align-items: center;
   gap: 10px;
   padding: 12px 14px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-default);
   border-radius: 14px;
-  transition: all 0.2s;
+  transition: all 0.25s ease;
 }
 
 .playerCard:hover {
-  background: rgba(255, 255, 255, 0.055);
+  background: var(--bg-card-hover);
+  border-color: rgba(255, 255, 255, 0.12);
+  transform: translateX(2px);
 }
 
 .meCard {
-  background: rgba(108, 99, 255, 0.07);
-  border-color: rgba(108, 99, 255, 0.2);
+  background: linear-gradient(90deg, var(--accent-soft) 0%, rgba(134, 59, 255, 0.03) 100%) !important;
+  border-color: rgba(134, 59, 255, 0.3) !important;
+  box-shadow: 0 0 12px rgba(134, 59, 255, 0.1);
 }
 
 .goldCard {
-  border-color: rgba(255, 215, 0, 0.2);
-  background: rgba(255, 215, 0, 0.04);
+  border-color: rgba(255, 215, 0, 0.35) !important;
+  background: linear-gradient(90deg, rgba(255, 215, 0, 0.08) 0%, rgba(255, 215, 0, 0.01) 100%) !important;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.08);
 }
 
 .silverCard {
-  border-color: rgba(192, 192, 192, 0.2);
-  background: rgba(192, 192, 192, 0.03);
+  border-color: rgba(192, 192, 192, 0.35) !important;
+  background: linear-gradient(90deg, rgba(192, 192, 192, 0.08) 0%, rgba(192, 192, 192, 0.01) 100%) !important;
 }
 
 .bronzeCard {
-  border-color: rgba(205, 127, 50, 0.2);
-  background: rgba(205, 127, 50, 0.03);
+  border-color: rgba(205, 127, 50, 0.35) !important;
+  background: linear-gradient(90deg, rgba(205, 127, 50, 0.08) 0%, rgba(205, 127, 50, 0.01) 100%) !important;
 }
 
 .rankWrap {
   min-width: 28px;
   text-align: center;
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 800;
+  font-family: 'Space Grotesk', sans-serif;
 }
 
 .rank {
@@ -336,10 +360,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
+  font-weight: 800;
   font-size: 15px;
   position: relative;
   flex-shrink: 0;
+  border: 1.5px solid var(--border-default);
 }
 
 .playerAvatar img {
@@ -356,7 +381,7 @@
   width: 11px;
   height: 11px;
   border-radius: 50%;
-  border: 2px solid #0d0d1a;
+  border: 2px solid var(--bg-app);
 }
 
 .playerDetails {
@@ -377,14 +402,15 @@
 .playerName {
   font-size: 14px;
   font-weight: 700;
+  color: #fff;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .meTag {
-  font-weight: 400;
-  color: rgba(255, 255, 255, 0.4);
+  font-weight: 600;
+  color: var(--accent-light);
   font-size: 12px;
 }
 
@@ -395,16 +421,17 @@
 
 .playerTitle {
   font-size: 10px;
-  color: rgba(255, 255, 255, 0.35);
-  font-weight: 500;
+  color: var(--text-muted);
+  font-weight: 600;
 }
 
 .playerStatus {
   font-size: 10px;
-  color: #00d4ff;
+  color: var(--accent-cyan);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-weight: 600;
 }
 
 .progressRow {
@@ -417,7 +444,7 @@
 .xpBar {
   flex: 1;
   height: 4px;
-  background: rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 99px;
   overflow: hidden;
 }
@@ -428,11 +455,16 @@
   transition: width 0.5s ease;
 }
 
+.meCard .xpFill {
+  background: linear-gradient(90deg, var(--accent) 0%, var(--accent-cyan) 100%);
+}
+
 .xpText {
   font-size: 10px;
-  color: rgba(255, 255, 255, 0.3);
+  color: var(--text-muted);
   white-space: nowrap;
   flex-shrink: 0;
+  font-weight: 500;
 }
 
 /* ── SUPPORT BUTTON ─────────────────────────────────────────────────────────── */
@@ -444,29 +476,32 @@
   gap: 2px;
   width: 44px;
   height: 44px;
-  background: rgba(255, 71, 87, 0.1);
-  border: 1px solid rgba(255, 71, 87, 0.2);
+  background: rgba(255, 61, 113, 0.1);
+  border: 1px solid rgba(255, 61, 113, 0.2);
   border-radius: 12px;
-  color: #ff4757;
-  font-size: 10px;
-  font-weight: 600;
-  transition: all 0.2s;
+  color: var(--red);
+  font-size: 9px;
+  font-weight: 700;
+  transition: all 0.25s ease;
   flex-shrink: 0;
+  cursor: pointer;
 }
 
 .supportBtn:hover:not(:disabled) {
-  background: rgba(255, 71, 87, 0.18);
+  background: rgba(255, 61, 113, 0.2);
   transform: scale(1.05);
+  box-shadow: 0 0 10px rgba(255, 61, 113, 0.15);
 }
 
 .supportBtn:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: default;
 }
 
 .supportSent {
-  background: rgba(255, 71, 87, 0.15);
-  border-color: rgba(255, 71, 87, 0.35);
+  background: rgba(255, 61, 113, 0.15);
+  border-color: rgba(255, 61, 113, 0.35);
+  color: var(--red);
 }
 
 /* ── FRIEND LIST ─────────────────────────────────────────────────────────────── */
@@ -481,14 +516,17 @@
   align-items: center;
   gap: 12px;
   padding: 14px 16px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-default);
   border-radius: 14px;
-  transition: all 0.2s;
+  transition: all 0.25s ease;
 }
 
 .friendCard:hover {
-  background: rgba(255, 255, 255, 0.055);
+  background: var(--bg-card-hover);
+  border-color: rgba(255, 255, 255, 0.12);
+  transform: translateX(2px);
 }
 
 .friendAvatar {
@@ -498,10 +536,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
+  font-weight: 800;
   font-size: 18px;
   position: relative;
   flex-shrink: 0;
+  border: 1.5px solid var(--border-default);
 }
 
 .friendAvatar img {
@@ -528,30 +567,33 @@
 .friendName {
   font-size: 15px;
   font-weight: 700;
+  color: #fff;
 }
 
 .friendLeague {
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
+  color: var(--accent-cyan);
 }
 
 .friendTitle {
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.35);
-  font-weight: 500;
+  color: var(--text-muted);
+  font-weight: 600;
 }
 
 .friendStatus {
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-secondary);
 }
 
 .friendQuest {
   font-size: 11px;
-  color: #00d4ff;
+  color: var(--accent-cyan);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-weight: 600;
 }
 
 .friendXpRow {
@@ -565,7 +607,7 @@
 .emptyState {
   text-align: center;
   padding: 40px 20px;
-  color: rgba(255, 255, 255, 0.3);
+  color: var(--text-muted);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -575,6 +617,7 @@
 
 .emptyState p {
   font-size: 14px;
+  color: var(--text-secondary);
 }
 
 /* ── PREMIUM CTA ─────────────────────────────────────────────────────────────── */
@@ -583,27 +626,28 @@
   align-items: center;
   gap: 12px;
   padding: 14px 16px;
-  background: linear-gradient(135deg, rgba(255, 215, 0, 0.08), rgba(255, 165, 0, 0.04));
-  border: 1px solid rgba(255, 215, 0, 0.15);
+  background: linear-gradient(135deg, rgba(255, 179, 0, 0.1) 0%, rgba(255, 179, 0, 0.02) 100%);
+  border: 1px solid rgba(255, 179, 0, 0.25);
   border-radius: 14px;
   cursor: pointer;
   margin-top: 12px;
-  transition: all 0.2s;
+  transition: all 0.25s ease;
 }
 
 .premiumCta:hover {
-  background: linear-gradient(135deg, rgba(255, 215, 0, 0.12), rgba(255, 165, 0, 0.06));
+  background: linear-gradient(135deg, rgba(255, 179, 0, 0.15) 0%, rgba(255, 179, 0, 0.04) 100%);
+  border-color: rgba(255, 179, 0, 0.4);
 }
 
 .premiumCtaTitle {
   font-size: 13px;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.8);
+  font-weight: 800;
+  color: #ffb300;
 }
 
 .premiumCtaDesc {
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-secondary);
   margin-top: 2px;
 }
 

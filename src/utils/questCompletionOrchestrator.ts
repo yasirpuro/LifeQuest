@@ -7,6 +7,10 @@ import { getWidgetCache, updateWidgetCache } from './widgetCommandBus';
 import { buildNotificationContent, canSendNotification, trackNotificationEngaged } from './smartNotificationScheduler';
 import { getComebackRewardBonus } from './retentionEngine';
 import { logCrash } from './productionSafety';
+import { checkIdentityRewards } from '../core/services/identityRewardService';
+import { getSessionChain, incrementSessionChain, calculateSessionBonus, getSessionChainHook } from '../core/services/sessionChainService';
+import { getAnticipationHint } from '../core/services/anticipationService';
+import { trackEvent as trackBehaviorEvent } from '../core/services/analyticsService';
 
 interface QuestCompletionContext {
   quest: Quest;
@@ -25,6 +29,18 @@ interface QuestCompletionResult {
   notifications: Array<{ title: string; body: string }>;
   warnings: string[];
   stateSnapshot: Record<string, any>;
+  rewardEvent?: import('../types').RewardEvent;
+  sessionChainHook?: {
+    showHook: boolean;
+    message: string;
+    bonusProgress: number;
+    nextReward: string;
+  };
+  metaSkills?: import('../types').MetaSkills;
+  anticipationHint?: {
+    type: string;
+    message: string;
+  };
 }
 
 /**
@@ -51,15 +67,236 @@ export async function orchestrateQuestCompletion(
 
   try {
     // ============================================================
-    // PHASE 1: XP CALCULATION (deterministic)
+    // PHASE 1: XP CALCULATION & VARIABLE REWARD ENGINE
     // ============================================================
     const baseXp = context.quest.difficulty * 10; // 10-50 base
     const difficultyMultiplier = [0.8, 1, 1.2, 1.5, 2][context.difficulty - 1] || 1;
-    const streakBonus = Math.log2(1 + context.streak) || 1;
     const dueBonus = context.isDue ? 1.5 : 1;
     const challengeBonus = context.isChallenge ? 1.3 : 1;
+    let earnedXp = baseXp * difficultyMultiplier * dueBonus * challengeBonus;
 
-    let earnedXp = baseXp * difficultyMultiplier * streakBonus * dueBonus * challengeBonus;
+    // ============================================================
+    // PHASE 0: BEHAVIOR TRACKING
+    // ============================================================
+    trackBehaviorEvent('quest_completed', { 
+      questId: context.quest.id, 
+      difficulty: context.difficulty,
+      xp: baseXp 
+    });
+
+    // --- Variable Reward Logic ---
+    let weights = {
+      none: 0.60,
+      small: 0.25,
+      medium: 0.12,
+      jackpot: 0.03,
+    };
+
+    // Initialize Meta Skills if missing
+    const metaSkills = state.user.metaSkills || {
+      focus: { type: 'focus', level: 1, xp: 0, xpToNext: 100, benefits: [] },
+      discipline: { type: 'discipline', level: 1, xp: 0, xpToNext: 100, benefits: [] },
+      consistency: { type: 'consistency', level: 1, xp: 0, xpToNext: 100, benefits: [] }
+    };
+
+    const isLastTaskOfDay = state.quests.filter(q => q.completed).length + 1 === state.quests.length && state.quests.length > 0;
+    const xpToLevel = (state.user.xpToNext || 100) - (state.user.xp || 0);
+    const tasksCompletedToday = state.user.tasksCompletedToday || 0;
+
+    // Context Modifiers
+    if (isLastTaskOfDay) weights.jackpot += 0.05;
+    if (xpToLevel < 30) weights.medium += 0.10;
+    if (context.streak >= 7) weights.small += 0.15; // Streak fusion
+    
+    // Meta Skill Passive Bonuses
+    // Focus gives +1% jackpot chance and +2% medium chance per level above 1
+    const focusBonus = Math.max(0, metaSkills.focus.level - 1);
+    weights.jackpot += focusBonus * 0.01;
+    weights.medium += focusBonus * 0.02;
+
+    // Discipline gives decay resistance (handled in decay system normally, but here we can give small boost)
+    // Consistency gives base XP multiplier
+    const consistencyMultiplier = 1 + (Math.max(0, metaSkills.consistency.level - 1) * 0.02);
+    earnedXp *= consistencyMultiplier;
+
+
+    // Control Illusion: back-to-back completion
+    const lastQuestTime = state.user.lastQuestCompletedAt ? new Date(state.user.lastQuestCompletedAt).getTime() : 0;
+    const timeSinceLastQuest = Date.now() - lastQuestTime;
+    const isBackToBack = timeSinceLastQuest > 0 && timeSinceLastQuest < 2 * 60 * 60 * 1000; // within 2 hours
+    if (isBackToBack) {
+      weights.medium += 0.15;
+    }
+
+    // Premium Boost
+    if (state.user.isPremium) {
+      weights.medium += 0.05;
+      weights.jackpot += 0.02;
+    }
+
+    // Anti-Abuse (Gizli Nerf)
+    if (tasksCompletedToday > 10) {
+      weights.small *= 0.7;
+      weights.medium *= 0.5;
+      weights.jackpot *= 0.3;
+    }
+
+    // Cooldown logic
+    const jackpotCooldown = state.user.jackpotCooldown || 0;
+    if (jackpotCooldown > 0) {
+      weights.jackpot = 0;
+    }
+
+    // Normalize weights
+    const totalWeight = weights.none + weights.small + weights.medium + weights.jackpot;
+    weights.none /= totalWeight;
+    weights.small /= totalWeight;
+    weights.medium /= totalWeight;
+    weights.jackpot /= totalWeight;
+
+    // Roll
+    const roll = Math.random();
+    let selectedTier: import('../types').RewardTier = 'none';
+    let cumulative = 0;
+    
+    if (roll < (cumulative += weights.none)) selectedTier = 'none';
+    else if (roll < (cumulative += weights.small)) selectedTier = 'small';
+    else if (roll < (cumulative += weights.medium)) selectedTier = 'medium';
+    else selectedTier = 'jackpot';
+
+    // Near Miss Effect
+    if (selectedTier === 'none') {
+      const nearMissChance = 0.15;
+      if (Math.random() < nearMissChance && (isBackToBack || isLastTaskOfDay)) {
+        selectedTier = 'near_miss';
+      }
+    }
+
+    // Identity Roll
+    let identityTitle = '';
+    // if 5th task of the day, OR hitting a streak milestone (e.g. 10, 20, 30) on first task
+    if (tasksCompletedToday + 1 === 5) {
+      selectedTier = 'identity';
+      identityTitle = 'FOCUS MASTER';
+    } else if (context.streak > 0 && context.streak % 10 === 0 && tasksCompletedToday === 0) {
+      selectedTier = 'identity';
+      identityTitle = 'DISCIPLINE ELITE';
+    }
+
+    // Check for identity rewards using the service
+    const identityChecks = checkIdentityRewards({
+      questsCompletedToday: tasksCompletedToday + 1,
+      currentStreak: context.streak,
+      consecutiveQuests: getSessionChain().consecutiveQuests + 1,
+      totalQuests: state.user.totalQuests || 0,
+      daysActive: 0, // TODO: track days active
+      perfectWeek: false, // TODO: track perfect week
+      streakSaved: false, // TODO: track streak saved
+    });
+
+    // If identity reward qualifies, override tier
+    if (identityChecks.length > 0 && identityChecks[0].qualifies) {
+      selectedTier = 'identity';
+      identityTitle = identityChecks[0].reward?.title || identityTitle;
+    }
+
+    // Apply Reward XP
+    let rewardXp = 0;
+    if (selectedTier === 'small') rewardXp = 10;
+    else if (selectedTier === 'medium') rewardXp = 25;
+    else if (selectedTier === 'jackpot') rewardXp = 50;
+    else if (selectedTier === 'identity') rewardXp = 100; // Identity reward gives massive XP
+
+    earnedXp += rewardXp;
+
+    // Session Chain Bonus
+    const currentChain = getSessionChain();
+    const sessionBonus = calculateSessionBonus(currentChain);
+    earnedXp *= sessionBonus;
+
+    // Increment session chain
+    const updatedChain = incrementSessionChain();
+
+    // Meta Skills Progress calculation
+    // Focus: gains XP on task complete, extra for medium/jackpot
+    metaSkills.focus.xp += 10 + (selectedTier === 'medium' ? 10 : selectedTier === 'jackpot' ? 20 : 0);
+    // Discipline: gains XP based on streak multiplier
+    metaSkills.discipline.xp += 10 * (1 + (context.streak * 0.1));
+    // Consistency: gains XP heavily on last task of day
+    if (isLastTaskOfDay) metaSkills.consistency.xp += 50;
+
+    // Check Meta Skill level ups (100 XP per level)
+    ['focus', 'discipline', 'consistency'].forEach((skill) => {
+      const key = skill as keyof typeof metaSkills;
+      while (metaSkills[key].xp >= metaSkills[key].level * 100) {
+        metaSkills[key].xp -= metaSkills[key].level * 100;
+        metaSkills[key].level++;
+        metaSkills[key].xpToNext = metaSkills[key].level * 100;
+      }
+    });
+
+    // Set Reward Event for UI
+    if (selectedTier !== 'none') {
+      result.rewardEvent = {
+        tier: selectedTier,
+        amount: rewardXp,
+        questTitle: context.quest.title,
+        timestamp: now,
+        ...(identityTitle && { identityTitle })
+      };
+
+      // Track reward shown
+      trackBehaviorEvent('reward_shown', { 
+        tier: selectedTier, 
+        amount: rewardXp,
+        ...(identityTitle && { identityTitle })
+      });
+
+      // Track identity reward separately
+      if (selectedTier === 'identity') {
+        trackBehaviorEvent('identity_shown', { 
+          title: identityTitle 
+        });
+      }
+    }
+
+    // Add session chain hook for UI
+    result.sessionChainHook = getSessionChainHook(updatedChain);
+
+    // Add meta skills to result
+    result.metaSkills = metaSkills;
+
+    // Add anticipation hint for curiosity
+    const anticipationHint = getAnticipationHint();
+    if (anticipationHint) {
+      result.anticipationHint = {
+        type: anticipationHint.type,
+        message: anticipationHint.message,
+      };
+
+      // Track anticipation hint shown
+      trackBehaviorEvent('anticipation_hint_shown', { 
+        type: anticipationHint.type 
+      });
+    }
+
+    // Track skill level up if happened
+    ['focus', 'discipline', 'consistency'].forEach((skill) => {
+      const key = skill as keyof typeof metaSkills;
+      while (metaSkills[key].xp >= metaSkills[key].level * 100) {
+        metaSkills[key].xp -= metaSkills[key].level * 100;
+        metaSkills[key].level++;
+        metaSkills[key].xpToNext = metaSkills[key].level * 100;
+
+        // Track skill level up
+        trackBehaviorEvent('skill_level_up', { 
+          skill: skill,
+          level: metaSkills[key].level 
+        });
+      }
+    });
+
+    // --- End Variable Reward Logic ---
 
     // PHASE 2: Check daily XP cap
     const dailyXpEarned = state.user.xp % 1000; // rough estimate
@@ -183,6 +420,22 @@ export async function orchestrateQuestCompletion(
     state.user.streak = newStreak;
     state.user.lastQuestCompletedAt = now;
     state.user.streakRiskLevel = daysSinceLastQuest > 1 ? 'critical' : daysSinceLastQuest === 1 ? 'warning' : 'safe';
+    
+    // Update Reward System Memory
+    state.user.tasksCompletedToday = tasksCompletedToday + 1;
+    state.user.jackpotCooldown = Math.max(0, jackpotCooldown - 1);
+    state.user.metaSkills = metaSkills;
+    
+    if (result.rewardEvent && result.rewardEvent.tier !== 'near_miss') {
+      state.user.lastReward = {
+        tier: result.rewardEvent.tier,
+        amount: result.rewardEvent.amount,
+        timestamp: now
+      };
+      if (result.rewardEvent.tier === 'jackpot') {
+        state.user.jackpotCooldown = 2; // disable jackpot for next 2 tasks
+      }
+    }
 
     // ============================================================
     // PHASE 10: NATIVE STATE VERIFICATION (read-only)

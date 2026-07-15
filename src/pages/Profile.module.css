@@ -11,8 +11,8 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 180px;
-  background: linear-gradient(180deg, rgba(108, 99, 255, 0.15) 0%, transparent 100%);
+  height: 200px;
+  background: linear-gradient(180deg, rgba(134, 59, 255, 0.15) 0%, transparent 100%);
   pointer-events: none;
 }
 
@@ -34,14 +34,15 @@
   width: 96px;
   height: 96px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #6C63FF, #00d4ff);
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-cyan) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
   font-size: 36px;
   font-weight: 800;
-  border: 3px solid rgba(108, 99, 255, 0.3);
+  border: 3px solid rgba(134, 59, 255, 0.35);
+  box-shadow: var(--shadow-glow);
 }
 
 .avatar img {
@@ -57,25 +58,28 @@
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #ffa502, #ff6b81);
+  background: linear-gradient(135deg, #ffaa00, #ff5500);
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  border: 2px solid var(--bg-primary);
+  border: 2.5px solid var(--bg-app);
+  box-shadow: 0 2px 8px rgba(255, 170, 0, 0.4);
 }
 
 .name {
   font-size: 24px;
   font-weight: 800;
   margin-bottom: 4px;
+  font-family: 'Space Grotesk', sans-serif;
+  color: #fff;
 }
 
 .bio {
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.45);
+  color: var(--text-secondary);
   text-align: center;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .levelRow {
@@ -88,42 +92,48 @@
 
 .levelTag {
   font-size: 12px;
-  font-weight: 700;
-  padding: 3px 10px;
-  background: linear-gradient(135deg, #6C63FF, #00d4ff);
+  font-weight: 800;
+  padding: 4px 12px;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-cyan) 100%);
   border-radius: 20px;
   white-space: nowrap;
+  color: #fff;
+  box-shadow: 0 2px 10px rgba(134, 59, 255, 0.25);
+  font-family: 'Space Grotesk', sans-serif;
 }
 
 .xpBar {
   flex: 1;
   height: 6px;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 6px;
   overflow: hidden;
 }
 
 .xpFill {
   height: 100%;
-  background: linear-gradient(90deg, #6C63FF, #00d4ff);
+  background: linear-gradient(90deg, var(--accent) 0%, var(--accent-cyan) 100%);
   border-radius: 6px;
   transition: width 0.5s ease;
 }
 
 .xpLabel {
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.35);
+  color: var(--text-muted);
   white-space: nowrap;
+  font-weight: 600;
 }
 
 .statsRow {
   display: flex;
   align-items: center;
-  margin: 20px;
-  padding: 16px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  margin: 10px 20px 20px;
+  padding: 18px 16px;
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-default);
   border-radius: 16px;
+  box-shadow: var(--shadow-card);
 }
 
 .stat {
@@ -137,23 +147,25 @@
 .divider {
   width: 1px;
   height: 40px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--border-default);
 }
 
-.iconBlue { color: #00d4ff; }
-.iconOrange { color: #ffa502; }
-.iconGreen { color: #00ff88; }
-.iconPurple { color: #6C63FF; }
+.iconBlue { color: var(--accent-cyan); }
+.iconOrange { color: #ffb300; }
+.iconGreen { color: var(--green); }
+.iconPurple { color: var(--accent-light); }
 
 .statVal {
   font-size: 20px;
   font-weight: 800;
   font-family: 'Space Grotesk', sans-serif;
+  color: #fff;
 }
 
 .statLbl {
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.35);
+  color: var(--text-muted);
+  font-weight: 600;
 }
 
 .section {
@@ -162,9 +174,12 @@
 }
 
 .sectionTitle {
-  font-size: 16px;
-  font-weight: 700;
+  font-size: 15px;
+  font-weight: 800;
   margin-bottom: 14px;
+  font-family: 'Space Grotesk', sans-serif;
+  color: #fff;
+  letter-spacing: 0.02em;
 }
 
 .badgeGrid {
@@ -179,14 +194,20 @@
   align-items: center;
   gap: 6px;
   padding: 14px 8px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
   border-radius: 14px;
   position: relative;
+  transition: all 0.25s ease;
+}
+
+.badge:hover:not(.badgeLocked) {
+  border-color: rgba(134, 59, 255, 0.25);
+  box-shadow: var(--shadow-glow);
 }
 
 .badgeLocked {
-  opacity: 0.4;
+  opacity: 0.35;
   cursor: pointer;
 }
 
@@ -195,14 +216,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.45);
 }
 
 .badgeName {
   font-size: 10px;
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--text-secondary);
   text-align: center;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .premTag {
@@ -211,10 +232,10 @@
   right: 4px;
   font-size: 7px;
   padding: 1px 4px;
-  background: linear-gradient(135deg, #ffa502, #ff6b81);
+  background: linear-gradient(135deg, #ffaa00, #ff5500);
   border-radius: 4px;
   color: white;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .weekGrid {
@@ -229,26 +250,33 @@
   align-items: center;
   gap: 4px;
   padding: 10px 4px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
   border-radius: 10px;
+  transition: all 0.25s ease;
+}
+
+.weekCard:hover {
+  border-color: rgba(71, 191, 255, 0.2);
 }
 
 .weekDay {
   font-size: 10px;
-  color: rgba(255, 255, 255, 0.35);
-  font-weight: 500;
+  color: var(--text-muted);
+  font-weight: 700;
 }
 
 .weekVal {
   font-size: 16px;
   font-weight: 800;
   font-family: 'Space Grotesk', sans-serif;
+  color: #fff;
 }
 
 .weekLbl {
   font-size: 8px;
-  color: rgba(255, 255, 255, 0.25);
+  color: var(--text-muted);
+  font-weight: 600;
 }
 
 .bottomPad {

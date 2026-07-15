@@ -1,5 +1,5 @@
 import { createContext } from 'react';
-import type { UserProfile, LocationType, Quest, Friend, FriendRequest } from '../types';
+import type { UserProfile, LocationType, Quest, Friend, FriendRequest, RewardEvent } from '../types';
 import type { Badge } from '../types';
 
 export interface AppState {
@@ -24,6 +24,9 @@ export interface AppContextValue extends AppState {
   skillEngine?: any;
   // Last quest completion result (for UI feedback)
   completionResult?: any;
+  // Reward system event
+  rewardEvent: RewardEvent | null;
+  setRewardEvent: (event: RewardEvent | null) => void;
   setUser: (user: Partial<UserProfile>) => void;
   setSelectedLocation: (loc: LocationType) => void;
   completeQuest: (questId: string, verificationNote?: string) => void;

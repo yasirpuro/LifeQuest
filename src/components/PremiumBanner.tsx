@@ -5,7 +5,9 @@ import styles from './PremiumBanner.module.css';
 export default function PremiumBanner() {
   const { user, setShowPremiumModal } = useApp();
 
+  // Don't show premium prompt for demo users or if already premium
   if (user.isPremium) return null;
+  if (typeof window !== 'undefined' && window.localStorage.getItem('lifequest_demo_authenticated') === 'true') return null;
 
   return (
     <button className={styles.banner} onClick={() => setShowPremiumModal(true)}>

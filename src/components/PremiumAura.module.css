@@ -1,0 +1,78 @@
+.premiumWrapper {
+  position: relative;
+  display: contents;
+}
+
+.aura {
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  border-radius: inherit;
+  background: linear-gradient(45deg, #863bff, #47bfff, #863bff, #47bfff);
+  background-size: 400% 400%;
+  animation: premiumGlow 3s ease infinite;
+  filter: blur(8px);
+  opacity: 0.6;
+  z-index: -1;
+}
+
+@keyframes premiumGlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.glow {
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border-radius: inherit;
+  background: linear-gradient(45deg, rgba(134, 59, 255, 0.3), rgba(71, 191, 255, 0.3));
+  filter: blur(4px);
+  opacity: 0.4;
+  z-index: -1;
+  animation: premiumPulse 2s ease-in-out infinite;
+}
+
+@keyframes premiumPulse {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.02);
+  }
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  transition: all 0.3s ease;
+}
+
+/* Premium smooth animations */
+.premiumWrapper * {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.premiumWrapper button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(134, 59, 255, 0.4);
+}
+
+.premiumWrapper .card {
+  backdrop-filter: blur(20px);
+  background: linear-gradient(135deg, rgba(134, 59, 255, 0.15), rgba(71, 191, 255, 0.15));
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}

@@ -1,7 +1,8 @@
 import { useState, useRef } from 'react';
 import { Camera, Upload, ArrowRight, ArrowLeft, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useApp } from '../hooks/useApp';
+import { useAuth } from '../features/auth/authContext';
+import { useQuest } from '../features/quests/questContext';
 import type { LocationType } from '../types';
 import styles from './Onboarding.module.css';
 
@@ -34,7 +35,8 @@ export default function Onboarding() {
 
   const fileRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
-  const { setUser, setSelectedLocation, completeOnboarding, startChallenge } = useApp();
+  const { updateUserProfile } = useAuth();
+  const { setSelectedLocation, completeOnboarding, startChallenge } = useQuest();
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -51,7 +53,7 @@ export default function Onboarding() {
       setStep(step + 1);
       return;
     }
-    setUser({ name, bio, avatar });
+    updateUserProfile({ name, bio, avatar });
     startChallenge(focus, duration);
     setSelectedLocation(focus);
     completeOnboarding();

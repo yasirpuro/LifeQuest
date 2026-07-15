@@ -1,0 +1,8 @@
+{
+	"appId": "com.lifequest.app",
+	"appName": "LifeQuest",
+	"webDir": "dist",
+	"server": {
+		"androidScheme": "https"
+	}
+}

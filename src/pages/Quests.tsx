@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { useApp } from '../hooks/useApp';
+import { useAuth } from '../features/auth/authContext';
+import { useQuest } from '../features/quests/questContext';
 import { LOCATIONS } from '../data/quests';
 import QuestCard from '../components/QuestCard';
 import ShareModal from '../components/ShareModal';
@@ -9,16 +10,17 @@ import type { Quest, LocationType } from '../types';
 import styles from './Quests.module.css';
 
 export default function Quests() {
-  const { quests, selectedLocation, setSelectedLocation, user, setShowPremiumModal, addQuest } = useApp();
+  const { userProfile } = useAuth();
+  const { quests, selectedLocation, setSelectedLocation, setShowPremiumModal, addQuest } = useQuest();
   const [shareQuest, setShareQuest] = useState<Quest | null>(null);
   const [newQuestTitle, setNewQuestTitle] = useState('');
   const [newQuestDifficulty, setNewQuestDifficulty] = useState<number>(3);
-  const activeLoc = selectedLocation || 'ibadet';
+  const activeLoc = selectedLocation || 'din';
 
   const filteredQuests = quests.filter(q => q.location === activeLoc);
 
   const handleLocationChange = (loc: LocationType) => {
-    if (!user.isPremium && loc !== selectedLocation) {
+    if (!userProfile?.isPremium && loc !== selectedLocation) {
       const isFirst = !selectedLocation;
       if (!isFirst) {
         setShowPremiumModal(true);

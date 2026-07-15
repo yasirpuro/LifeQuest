@@ -1,6 +1,8 @@
 import { useState } from 'react';
-import { UserPlus, Crown, Lock, Search, Heart, Trophy, Star, Zap, Flame, Medal } from 'lucide-react';
-import { useApp } from '../hooks/useApp';
+import { UserPlus, Crown, Search, Heart, Trophy, Star, Zap, Flame, Medal } from 'lucide-react';
+import { useAuth } from '../features/auth/authContext';
+import { useSocial } from '../features/social/socialContext';
+import { useQuest } from '../features/quests/questContext';
 import PremiumBanner from '../components/PremiumBanner';
 import BottomNav from '../components/BottomNav';
 import styles from './Social.module.css';
@@ -30,7 +32,9 @@ function getLevelTitle(level: number) {
 }
 
 export default function Social() {
-  const { user, friends, sendSupportToFriend, setShowPremiumModal } = useApp();
+  const { userProfile } = useAuth();
+  const { friends, sendSupportToFriend } = useSocial();
+  const { setShowPremiumModal } = useQuest();
   const [activeTab, setActiveTab] = useState<Tab>('leaderboard');
   const [searchValue, setSearchValue] = useState('');
 
@@ -50,16 +54,16 @@ export default function Social() {
   const leaderboard = [
     {
       id: 'me',
-      name: user.name || 'Sen',
-      level: user.level,
-      xp: user.xp,
-      xpToNext: user.xpToNext,
-      avatar: user.avatar || '',
+      name: userProfile?.name || 'Sen',
+      level: userProfile?.level || 1,
+      xp: userProfile?.xp || 0,
+      xpToNext: userProfile?.xpToNext || 100,
+      avatar: userProfile?.avatar || '',
       status: 'online' as const,
       currentQuest: undefined as string | undefined,
       sentSupportToday: false,
       isMe: true,
-      streak: user.streak,
+      streak: userProfile?.streak || 0,
     },
     ...friends.map(f => ({
       id: f.id,
@@ -72,16 +76,15 @@ export default function Social() {
       currentQuest: f.currentQuest,
       sentSupportToday: f.sentSupportToday,
       isMe: false,
-      streak: Math.floor(Math.random() * 14) + 1,
     }))
   ].sort((a, b) => {
     if (b.level !== a.level) return b.level - a.level;
     return b.xp - a.xp;
   });
 
-  const myLeague = getLeague(user.level);
-  const myTitle = getLevelTitle(user.level);
-  const myXpPercent = user.xpToNext > 0 ? Math.min((user.xp / user.xpToNext) * 100, 100) : 0;
+  const myLeague = getLeague(userProfile?.level || 1);
+  const myTitle = getLevelTitle(userProfile?.level || 1);
+  const myXpPercent = userProfile?.xpToNext && userProfile?.xpToNext > 0 ? Math.min(((userProfile?.xp || 0) / userProfile.xpToNext) * 100, 100) : 0;
 
   const getRankEmoji = (idx: number) => {
     if (idx === 0) return '🥇';
@@ -103,12 +106,12 @@ export default function Social() {
           <span className={styles.myLeagueTier} style={{ color: myLeague.color }}>
             {myLeague.icon} {myLeague.name}
           </span>
-          <h2 className={styles.myLeagueName}>{user.name || 'Kahraman'}</h2>
+          <h2 className={styles.myLeagueName}>{userProfile?.name || 'Kahraman'}</h2>
           <span className={styles.myLeagueTitle}>{myTitle}</span>
         </div>
         <div className={styles.myLeagueRight}>
           <div className={styles.myLevelBadge} style={{ background: `${myLeague.color}22`, borderColor: myLeague.color + '55' }}>
-            <span className={styles.myLevelNum}>{user.level}</span>
+            <span className={styles.myLevelNum}>{userProfile?.level || 1}</span>
             <span className={styles.myLevelLabel}>Seviye</span>
           </div>
         </div>
@@ -116,10 +119,10 @@ export default function Social() {
         <div className={styles.myLeagueBottom}>
           <div className={styles.myXpRow}>
             <span className={styles.myXpLabel}>
-              <Zap size={12} /> {user.xp} / {user.xpToNext} XP
+              <Zap size={12} /> {userProfile?.xp || 0} / {userProfile?.xpToNext || 100} XP
             </span>
             <span className={styles.myStreakLabel}>
-              <Flame size={12} /> {user.streak} gün seri
+              <Flame size={12} /> {userProfile?.streak || 0} gün seri
             </span>
           </div>
           <div className={styles.myXpBar}>
@@ -156,14 +159,8 @@ export default function Social() {
           placeholder="Arkadaş ara..."
           className={styles.searchInput}
           value={searchValue}
-          onChange={e => {
-            if (!user.isPremium) { setShowPremiumModal(true); return; }
-            setSearchValue(e.target.value);
-          }}
-          readOnly={!user.isPremium}
-          onFocus={() => { if (!user.isPremium) setShowPremiumModal(true); }}
+          onChange={e => setSearchValue(e.target.value)}
         />
-        {!user.isPremium && <Lock size={13} className={styles.lockIcon} />}
       </div>
 
       {/* LEADERBOARD TAB */}
@@ -176,7 +173,7 @@ export default function Social() {
             </h3>
             <button
               className={styles.addBtn}
-              onClick={() => { if (!user.isPremium) setShowPremiumModal(true); }}
+              onClick={() => { /* Invite / share — available for all users */ navigator.clipboard?.writeText(window.location.href).catch(()=>{}); }}
             >
               <UserPlus size={14} />
               Davet Et
@@ -281,7 +278,7 @@ export default function Social() {
             </h3>
             <button
               className={styles.addBtn}
-              onClick={() => { if (!user.isPremium) setShowPremiumModal(true); }}
+              onClick={() => { if (!userProfile?.isPremium) setShowPremiumModal(true); }}
             >
               <UserPlus size={14} />
               Ekle
@@ -353,7 +350,7 @@ export default function Social() {
           </div>
 
           {/* Premium - Add Friend CTA */}
-          {!user.isPremium && (
+          {!userProfile?.isPremium && (
             <div className={styles.premiumCta} onClick={() => setShowPremiumModal(true)}>
               <Crown size={20} style={{ color: '#FFD700' }} />
               <div>

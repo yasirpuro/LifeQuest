@@ -14,15 +14,22 @@ const appEnv = import.meta.env.VITE_APP_ENV as string | undefined || 'developmen
 export const isSupabaseConfigured =
   !!supabaseUrl &&
   !!supabaseKey &&
-  !supabaseUrl.includes('YOUR_PROJECT_ID');
+  !supabaseUrl.includes('YOUR_PROJECT_ID') &&
+  !supabaseUrl.includes('your_supabase_project_url') &&
+  !supabaseKey.includes('your_supabase_anon_key');
 
 export const isProduction = appEnv === 'production';
+export const isStaging = appEnv === 'staging';
+export const isDevelopment = appEnv === 'development';
 
 // Demo mode: Only enable in development if Supabase is not configured
-const DEMO_MODE = !isProduction && !isSupabaseConfigured;
+const DEMO_MODE = !isProduction && !isStaging && !isSupabaseConfigured;
 
 if (!isSupabaseConfigured && !DEMO_MODE) {
   console.error('[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY. Check .env.local');
+  console.error('[Supabase] Current environment:', appEnv);
+  console.error('[Supabase] URL provided:', supabaseUrl ? 'Yes' : 'No');
+  console.error('[Supabase] Key provided:', supabaseKey ? 'Yes' : 'No');
 }
 
 let _client: SupabaseClient | null = null;

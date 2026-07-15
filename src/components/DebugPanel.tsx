@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../features/auth/authContext';
 import { useSkill } from '../features/skills/skillContext';
 import { useQuest } from '../features/quests/questContext';
+import { getSupabase, isSupabaseConfigured, isProduction, isStaging } from '../shared/api/supabase';
 
 // Local helper function (moved from deleted orchestrator)
 function getDayKey(ts = Date.now()): string {
@@ -17,15 +18,53 @@ function getDayKey(ts = Date.now()): string {
  */
 export function DebugPanel() {
   const [show, setShow] = useState(false);
-  const [tab, setTab] = useState<'state' | 'quests' | 'skills'>('state');
+  const [tab, setTab] = useState<'state' | 'quests' | 'skills' | 'supabase' | 'testing'>('state');
   const { userProfile } = useAuth();
   const { skillsProgress, completionResult } = useSkill();
   const { quests, selectedLocation, freeQuestsToday, freeLocationsToday } = useQuest();
+  const [supabaseStatus, setSupabaseStatus] = useState<any>(null);
+  const testResults = {
+    auth: 'PENDING',
+    profileRestore: 'PENDING',
+    duplicate: 'PENDING',
+    offlineSync: 'PENDING',
+  };
 
   // Activate via URL ?debug=1
   useEffect(() => {
     const url = new URLSearchParams(window.location.search);
     if (url.get('debug') === '1') setShow(true);
+  }, []);
+
+  // Check Supabase status
+  useEffect(() => {
+    const checkSupabase = () => {
+      const client = getSupabase();
+      if (!client) {
+        setSupabaseStatus({
+          configured: isSupabaseConfigured,
+          environment: isProduction ? 'production' : isStaging ? 'staging' : 'development',
+          connected: false,
+          error: 'Client not initialized'
+        });
+        return;
+      }
+
+      // Check auth session
+      client.auth.getSession().then(({ data: { session }, error }) => {
+        setSupabaseStatus({
+          configured: isSupabaseConfigured,
+          environment: isProduction ? 'production' : isStaging ? 'staging' : 'development',
+          connected: true,
+          session: session ? 'Active' : 'None',
+          userId: session?.user?.id || null,
+          email: session?.user?.email || null,
+          error: error?.message || null
+        });
+      });
+    };
+
+    checkSupabase();
   }, []);
 
   // Expose on window for DevTools
@@ -72,7 +111,7 @@ export function DebugPanel() {
       <div style={{ padding: '8px 12px', borderBottom: '1px solid #333', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <span style={{ color: '#6C63FF', fontWeight: 700 }}>🛠 DEBUG PANEL</span>
         <div style={{ display: 'flex', gap: 8 }}>
-          {(['state', 'quests', 'skills'] as const).map(t => (
+          {(['state', 'quests', 'skills', 'supabase', 'testing'] as const).map(t => (
             <button key={t} onClick={() => setTab(t)} style={{
               background: tab === t ? '#6C63FF' : 'transparent', color: tab === t ? '#fff' : '#999',
               border: '1px solid #444', borderRadius: 4, padding: '2px 6px', cursor: 'pointer', fontSize: 10
@@ -144,6 +183,48 @@ export function DebugPanel() {
               </div>
             ))}
           </div>
+        )}
+
+        {tab === 'supabase' && (
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <tbody>
+              {[
+                ['Configured', supabaseStatus?.configured ? '✅' : '❌'],
+                ['Environment', supabaseStatus?.environment || '—'],
+                ['Connected', supabaseStatus?.connected ? '✅' : '❌'],
+                ['Session', supabaseStatus?.session || '—'],
+                ['User ID', supabaseStatus?.userId || '—'],
+                ['Email', supabaseStatus?.email || '—'],
+                ['Error', supabaseStatus?.error || '—'],
+              ].map(([k, v]) => (
+                <tr key={k as string} style={{ borderBottom: '1px solid #1e1e3a' }}>
+                  <td style={{ color: '#888', paddingRight: 8, paddingBottom: 4 }}>{k}</td>
+                  <td style={{ color: v === '✅' ? '#4caf50' : v === '❌' ? '#ff4757' : '#c0f0d0', fontWeight: 700 }}>{String(v)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+
+        {tab === 'testing' && (
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <tbody>
+              {[
+                ['Auth Test', testResults.auth],
+                ['Profile Restore', testResults.profileRestore],
+                ['Duplicate Prevention', testResults.duplicate],
+                ['Offline Sync', testResults.offlineSync],
+              ].map(([k, v]) => (
+                <tr key={k as string} style={{ borderBottom: '1px solid #1e1e3a' }}>
+                  <td style={{ color: '#888', paddingRight: 8, paddingBottom: 4 }}>{k}</td>
+                  <td style={{ 
+                    color: v === 'PASS' ? '#4caf50' : v === 'FAIL' ? '#ff4757' : '#ffd700',
+                    fontWeight: 700 
+                  }}>{String(v)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         )}
       </div>
 

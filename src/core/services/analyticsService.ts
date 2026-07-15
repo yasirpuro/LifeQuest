@@ -23,7 +23,14 @@ export type EventType =
   | 'auth_login_completed'
   | 'profile_created'
   | 'profile_sync_success'
-  | 'profile_sync_failed';
+  | 'profile_sync_failed'
+  | 'app_initialized'
+  | 'supabase_connection_success'
+  | 'supabase_connection_failed'
+  | 'onboarding_started'
+  | 'onboarding_completed'
+  | 'sync_failed'
+  | 'dashboard_error';
 
 export interface EventData {
   timestamp: string;

@@ -27,3 +27,16 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Android build files
+android/build/
+android/.gradle/
+android/app/build/
+android/capacitor-cordova-android-plugins/build/
+android/local.properties
+android/keystore.properties
+release.keystore
+*.keystore
+
+# Capacitor assets (generated)
+android/app/src/main/assets/public/

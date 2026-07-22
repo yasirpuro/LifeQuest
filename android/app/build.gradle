@@ -7,12 +7,12 @@ def twaScheme = 'https'
 def twaStartUrl = "${twaScheme}://${twaHost}/index.html"
 
 android {
-    namespace 'app.lifequest.twa'
-    compileSdk 34
+    namespace 'com.lifequest.app'
+    compileSdk 36
 
     defaultConfig {
-        applicationId 'app.lifequest.twa'
-        minSdk 23
+        applicationId 'com.lifequest.app'
+        minSdk 24
         targetSdk 34
         versionCode 1
         versionName '1.0.0'
@@ -66,4 +66,18 @@ android {
 dependencies {
     implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.5.0'
     implementation 'androidx.core:core:1.13.1'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation project(':capacitor-android')
+    implementation project(':capacitor-filesystem')
+    implementation project(':capacitor-preferences')
+
+    // Force consistent Kotlin stdlib version to resolve duplicate class conflicts
+    constraints {
+        implementation('org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22') {
+            because 'kotlin-stdlib-jdk7 is merged into kotlin-stdlib since 1.8'
+        }
+        implementation('org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22') {
+            because 'kotlin-stdlib-jdk8 is merged into kotlin-stdlib since 1.8'
+        }
+    }
 }

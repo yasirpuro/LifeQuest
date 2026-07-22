@@ -1,33 +1,124 @@
-# LifeQuest
+# 🎮 LifeQuest
 
-LifeQuest is a gamified productivity app for building habits, completing quests, and tracking progress.
+[![Vite](https://shields.io)](https://vitejs.dev)
+[![Supabase](https://shields.io)](https://supabase.com)
+[![Firebase](https://shields.io)](https://google.com)
+[![PWA](https://shields.io)](https://web.dev)
+[![License: MIT](https://shields.io)](https://opensource.org)
 
-## Production setup
+**LifeQuest**, günlük rutinleri, alışkanlıkları ve görevleri epik RPG mekanikleriyle (XP, seviye atlama, ödüller) birleştiren oyunlaştırılmış bir üretkenlik ve PWA (Progressive Web App) uygulamasıdır.
 
-1. Copy [.env.example](.env.example) to `.env.local`.
-2. Fill in the required values for Supabase and Firebase.
-3. Build and deploy with the production environment enabled.
+---
 
-### Required environment variables
+## 🛠️ Teknoloji Yığını & Mimari
 
-- `VITE_APP_ENV`
-- `VITE_APP_NAME`
-- `VITE_APP_URL`
-- `VITE_SUPABASE_URL`
-- `VITE_SUPABASE_ANON_KEY`
-- `VITE_FIREBASE_API_KEY`
-- `VITE_FIREBASE_AUTH_DOMAIN`
-- `VITE_FIREBASE_PROJECT_ID`
-- `VITE_FIREBASE_STORAGE_BUCKET`
-- `VITE_FIREBASE_MESSAGING_SENDER_ID`
-- `VITE_FIREBASE_APP_ID`
+- **Frontend:** React + TypeScript + Vite (Hızlı render ve optimize edilmiş derleme süreçleri)
+- **Veritabanı & Realtime:** Supabase (PostgreSQL, anlık veri senkronizasyonu ve Row Level Security)
+- **Kimlik Doğrulama & Bildirimler:** Firebase Auth & Firebase Cloud Messaging (FCM)
+- **Çevrimdışı Destek:** Service Workers tabanlı gelişmiş PWA önbellekleme (Caching) stratejileri
 
-## Release notes
+---
 
-- Production defaults are defined in [src/config/runtimeConfig.ts](src/config/runtimeConfig.ts).
-- The app uses the release metadata from [manifest.production.json](manifest.production.json).
-- The PWA manifest is available in [public/manifest.json](public/manifest.json).
-- Privacy policy: [docs/privacy-policy.html](docs/privacy-policy.html)
-- Terms of service: [docs/terms-of-service.html](docs/terms-of-service.html)
-- Play Console checklist: [docs/PLAY_CONSOLE_CHECKLIST.md](docs/PLAY_CONSOLE_CHECKLIST.md)
-- Play Store release notes: [docs/PLAY_STORE_RELEASE_NOTES.md](docs/PLAY_STORE_RELEASE_NOTES.md)
+## 📂 Proje Yapısı (Project Structure)
+
+```text
+├── docs/                     # Mağaza ve hukuki dokümantasyonlar (Privacy Policy, vb.)
+├── public/                   # Statik varlıklar ve PWA Manifest (`manifest.json`)
+├── src/
+│   ├── components/           # Yeniden kullanılabilir UI bileşenleri
+│   ├── config/               # `runtimeConfig.ts` gibi ortam ve çalışma zamanı ayarları
+│   ├── hooks/                # Özel React kancaları (Custom Hooks)
+│   ├── services/             # Supabase ve Firebase entegrasyon servisleri
+│   └── App.tsx               # Ana uygulama bileşeni
+├── .env.example              # Örnek çevre değişkenleri şablonu
+└── manifest.production.json  # Canlı ortam sürüm metadata dosyası
+```
+
+---
+
+## 🚀 Kurulum ve Başlatma (Getting Started)
+
+### 1. Yerel Geliştirme Ortamı (Local Development)
+
+Projeyi yerel bilgisayarınızda çalıştırmak için aşağıdaki adımları izleyin:
+
+```bash
+# Projeyi klonlayın
+git clone https://github.com
+cd lifequest
+
+# Bağımlılıkları yükleyin
+npm install
+
+# Çevre değişkenlerini yapılandırın
+cp .env.example .env.local
+
+# Yerel geliştirme sunucusunu başlatın
+npm run dev
+```
+
+### 2. Canlı Ortam Dağıtımı (Production Setup & Deployment)
+
+Üretim ortamı özellikleri aktif edilmiş optimize edilmiş çıktıyı (build) almak için:
+
+```bash
+# Üretim build sürecini tetikleyin
+npm run build
+
+# Yerel olarak production build'ı test edin
+npm run preview
+```
+
+---
+
+## ⚙️ Çevre Değişkenleri (Environment Variables)
+
+Uygulamanın çalışabilmesi için `.env.local` dosyasında tanımlanması zorunlu olan değişkenler:
+
+| Değişken | Tip | Açıklama |
+| :--- | :--- | :--- |
+| `VITE_APP_ENV` | `string` | Çalışma ortamı (`development` / `production`) |
+| `VITE_APP_NAME` | `string` | Uygulama başlığı (Örn: LifeQuest) |
+| `VITE_APP_URL` | `string` | Uygulamanın yayındaki ana URL adresi |
+| `VITE_SUPABASE_URL` | `string` | Supabase API Endpoint adresi |
+| `VITE_SUPABASE_ANON_KEY` | `string` | Supabase anonim istemci erişim anahtarı |
+| `VITE_FIREBASE_API_KEY` | `string` | Firebase Web API Anahtarı |
+| `VITE_FIREBASE_AUTH_DOMAIN` | `string` | Firebase Authentication domain adresi |
+| `VITE_FIREBASE_PROJECT_ID` | `string` | Firebase benzersiz proje kimliği |
+| `VITE_FIREBASE_STORAGE_BUCKET`| `string` | Firebase Cloud Storage saklama alanı adı |
+| `VITE_FIREBASE_MESSAGING_SENDER_ID` | `string` | Cloud Messaging push bildirim gönderici ID'si |
+| `VITE_FIREBASE_APP_ID` | `string` | Firebase Uygulama (App) ID değeri |
+
+---
+
+## 📦 Sürüm ve Dağıtım Yönetimi (Release Management)
+
+- **Yapılandırma Yönetimi:** Canlı ortam varsayılanları `src/config/runtimeConfig.ts` dosyasında tutulur.
+- **Sürüm Metadata:** Mağaza sürümleri ve güncellemeler `manifest.production.json` üzerinden takip edilir.
+- **PWA Kurulumu:** Manifest ayarları `public/manifest.json` içindedir.
+
+### 📄 Regülasyon ve Mağaza Linkleri
+* ⚖️ [Gizlilik Politikası (Privacy Policy)](docs/privacy-policy.html)
+* 📜 [Kullanım Şartları (Terms of Service)](docs/terms-of-service.html)
+* 🚀 [Google Play Console Kontrol Listesi](docs/PLAY_CONSOLE_CHECKLIST.md)
+* 📝 [Google Play Store Sürüm Notları](docs/PLAY_STORE_RELEASE_NOTES.md)
+
+---
+
+## 🤝 Katkıda Bulunma (Contributing)
+
+1. Bu depoyu çatallayın (Fork).
+2. Yeni bir özellik dalı (Feature Branch) açın: `git checkout -b feature/yeni-ozellik`.
+3. Değişikliklerinizi kaydedin: `git commit -m 'Ekle: Yeni özellik detayı'`.
+4. Dalınızı gönderin: `git push origin feature/yeni-ozellik`.
+5. Bir **Pull Request (PR)** oluşturun.
+
+---
+
+## 📄 Lisans
+
+Bu proje **MIT Lisansı** altında lisanslanmıştır. Detaylar için `LICENSE` dosyasına göz atabilirsiniz.
+
+---
+
+**Muhammed Yasir İğde** - Founder & Product Engineer

@@ -1,0 +1,391 @@
+.container {
+  min-height: 100vh;
+  background-color: #0d0d1a;
+  color: #fff;
+  padding-bottom: 80px;
+}
+
+.header {
+  padding: 40px 20px 20px;
+  background: linear-gradient(180deg, rgba(108, 99, 255, 0.1) 0%, transparent 100%);
+}
+
+.header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.header p {
+  color: #a0a0b0;
+  font-size: 15px;
+}
+
+.main {
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.section h2 {
+  font-size: 14px;
+  color: #8c8c9e;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.premiumActive {
+  border-color: rgba(255, 215, 0, 0.3);
+  background: linear-gradient(145deg, rgba(255,215,0,0.05) 0%, rgba(255,215,0,0) 100%);
+}
+
+.cardInfo {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.iconGold { color: #FFD700; }
+.iconGray { color: #a0a0b0; }
+.iconBlue { color: #6C63FF; }
+
+.cardInfo h3 {
+  font-size: 17px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.cardInfo p {
+  font-size: 13px;
+  color: #a0a0b0;
+  line-height: 1.4;
+}
+
+.limitText {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #FF7F50;
+  background: rgba(255, 127, 80, 0.1);
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+.premiumBtn {
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  color: #000;
+  border: none;
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  width: 100%;
+}
+
+.actionBtn {
+  background: rgba(108, 99, 255, 0.1);
+  color: #6C63FF;
+  border: 1px solid rgba(108, 99, 255, 0.3);
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.actionBtn:hover {
+  background: rgba(108, 99, 255, 0.2);
+}
+
+.editBtn {
+  background: rgba(46, 213, 115, 0.1);
+  color: #2ed573;
+  border: 1px solid rgba(46, 213, 115, 0.3);
+  border-radius: 12px;
+  padding: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.2s ease;
+}
+
+.editBtn:hover {
+  background: rgba(46, 213, 115, 0.2);
+}
+
+.logoutBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: rgba(255, 71, 87, 0.1);
+  color: #ff4757;
+  border: 1px solid rgba(255, 71, 87, 0.2);
+  border-radius: 16px;
+  padding: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.2s ease;
+}
+
+.logoutBtn:hover {
+  background: rgba(255, 71, 87, 0.2);
+}
+
+.errorBox {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 71, 87, 0.1);
+  border: 1px solid rgba(255, 71, 87, 0.3);
+  color: #ff4757;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+}
+
+.errorBox button {
+  background: none;
+  border: none;
+  color: #ff4757;
+  cursor: pointer;
+  margin-left: auto;
+  opacity: 0.7;
+}
+
+.errorBox button:hover {
+  opacity: 1;
+}
+
+/* ── Kategori Seçim Grid ── */
+.categoryGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.categoryBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 14px 8px;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.categoryBtn:hover:not(:disabled) {
+  border-color: #6C63FF;
+  background: rgba(108, 99, 255, 0.1);
+}
+
+.categoryBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.categoryActive {
+  border-color: #2ed573 !important;
+  background: rgba(46, 213, 115, 0.1) !important;
+}
+
+.catEmoji {
+  font-size: 24px;
+}
+
+.catLabel {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.catBadge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: #2ed573;
+  color: #000;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+/* ── Hızlı Düzenleme ── */
+.quickEdit {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.quickRow {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.quickRow > span {
+  font-size: 13px;
+  color: #8c8c9e;
+  font-weight: 600;
+}
+
+.quickBtns {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.qBtn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 8px 14px;
+  color: #ccc;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.qBtn:hover {
+  border-color: #6C63FF;
+  color: #fff;
+}
+
+.qBtnActive {
+  background: rgba(108, 99, 255, 0.15);
+  border-color: #6C63FF;
+  color: #6C63FF;
+}
+
+/* ── Onay Diyaloğu ── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.confirmModal {
+  background: #1a1a2e;
+  border: 1px solid rgba(255, 71, 87, 0.3);
+  border-radius: 20px;
+  padding: 32px 24px;
+  max-width: 380px;
+  width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.confirmModal h3 {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.confirmModal p {
+  font-size: 14px;
+  color: #a0a0b0;
+  line-height: 1.5;
+}
+
+.confirmInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+}
+
+.confirmKeep {
+  background: rgba(46, 213, 115, 0.1);
+  color: #2ed573;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.confirmLose {
+  background: rgba(255, 165, 2, 0.1);
+  color: #ffa502;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.confirmBtns {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.cancelBtn {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 12px;
+  color: #a0a0b0;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.dangerBtn {
+  flex: 1;
+  background: rgba(255, 71, 87, 0.15);
+  border: 1px solid rgba(255, 71, 87, 0.4);
+  border-radius: 12px;
+  padding: 12px;
+  color: #ff4757;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dangerBtn:hover {
+  background: rgba(255, 71, 87, 0.25);
+}
